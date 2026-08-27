@@ -1,14 +1,33 @@
-.PHONY: help install run
+.PHONY: build up down restart logs ps shell health rebuild clean
 
-POETRY=python -m poetry
+build:
+	docker compose build
 
-help:
-	@echo "Comandos disponíveis:"
-	@echo "make install"
-	@echo "make run"
+up:
+	docker compose up -d
 
-install:
-	$(POETRY) install
+down:
+	docker compose down
 
-run:
-	$(POETRY) run python -m http.server
+restart:
+	docker compose restart
+
+logs:
+	docker compose logs -f
+
+ps:
+	docker compose ps
+
+shell:
+	docker compose exec backend /bin/bash
+
+health:
+	curl http://localhost:8000/health
+
+rebuild:
+	docker compose down
+	docker compose build --no-cache
+	docker compose up -d
+
+clean:
+	docker compose down -v --remove-orphans
