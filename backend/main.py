@@ -1,16 +1,11 @@
 from fastapi import FastAPI
 
+from app.api.routers import books, health
+
 app = FastAPI(
     title="C216 Backend",
-    version="0.1.0"
+    version="0.1.0",
 )
 
-
-@app.get("/")
-def root():
-    return {"message": "Backend C216 funcionando"}
-
-
-@app.get("/health")
-def health():
-    return {"status": "ok"}
+app.include_router(health.router)
+app.include_router(books.router)

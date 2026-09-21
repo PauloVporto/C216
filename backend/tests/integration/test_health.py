@@ -1,6 +1,7 @@
 import pytest
 
 
+@pytest.mark.integration
 def test_root_returns_success(client):
     response = client.get("/")
 
@@ -8,6 +9,7 @@ def test_root_returns_success(client):
     assert response.json()["message"] == "Backend C216 funcionando"
 
 
+@pytest.mark.integration
 def test_health_returns_ok(client):
     response = client.get("/health")
 
@@ -15,6 +17,7 @@ def test_health_returns_ok(client):
     assert response.json() == {"status": "ok"}
 
 
+@pytest.mark.integration
 @pytest.mark.parametrize(
     "path, expected_status",
     [
@@ -30,6 +33,7 @@ def test_public_routes_status_code(client, path, expected_status):
     assert response.status_code == expected_status
 
 
+@pytest.mark.integration
 def test_unknown_route_returns_not_found(client):
     response = client.get("/rota-inexistente")
 
@@ -37,6 +41,7 @@ def test_unknown_route_returns_not_found(client):
     assert "detail" in response.json()
 
 
+@pytest.mark.integration
 def test_health_does_not_accept_post(client):
     response = client.post("/health")
 

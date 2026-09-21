@@ -1,4 +1,4 @@
-.PHONY: help install run test build up down restart logs ps shell health rebuild clean
+.PHONY: help install run test test-unit test-integration build up down restart logs ps shell health rebuild clean
 
 POETRY=python -m poetry
 
@@ -6,7 +6,9 @@ help:
 	@echo "Comandos disponíveis:"
 	@echo "  make install  - instala as dependências do backend"
 	@echo "  make run      - executa o backend localmente"
-	@echo "  make test     - executa os testes com Pytest"
+	@echo "  make test     - executa todos os testes com Pytest"
+	@echo "  make test-unit - executa os testes unitários"
+	@echo "  make test-integration - executa os testes de integração"
 	@echo "  make build    - constrói as imagens Docker"
 	@echo "  make up       - inicia os containers"
 	@echo "  make down     - encerra os containers"
@@ -26,6 +28,12 @@ run:
 
 test:
 	cd backend && $(POETRY) run pytest -v
+
+test-unit:
+	cd backend && $(POETRY) run pytest tests/unit -v -m unit
+
+test-integration:
+	cd backend && $(POETRY) run pytest tests/integration -v -m integration
 
 build:
 	docker compose build

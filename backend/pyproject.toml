@@ -21,6 +21,10 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = [
+    "unit: testes unitários",
+    "integration: testes de integração",
+]
 
 [dependency-groups]
 dev = [
