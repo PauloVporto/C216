@@ -1,74 +1,72 @@
+import asyncio
+from contextlib import asynccontextmanager
+from unittest.mock import AsyncMock
+
 import pytest
 from fastapi import HTTPException
+from app.schemas.book import BookCreate
+from app.services.book_service import BookService
 
-from app.schemas.book import BookCreate, BookPatch, BookUpdate
-
-
-@pytest.mark.unit
-def test_create_book_assigns_incremental_id(service):
-    first = service.create_book(BookCreate(title="Dom Casmurro", author="Machado de Assis"))
-    second = service.create_book(BookCreate(title="Memórias Póstumas", author="Machado de Assis"))
-
-    assert first.id == 1
-    assert second.id == 2
-    assert first.title == "Dom Casmurro"
-
+@pytest.fixture
+def conn(monkeypatch):
+    mock = AsyncMock()
+    @asynccontextmanager
+    async def connection():
+        yield mock
+    monkeypatch.setattr("app.services.book_service.connection", connection)
+    return mock
 
 @pytest.mark.unit
-def test_list_books_filters_by_availability(service):
-    service.create_book(BookCreate(title="Livro A", author="Autor A", available=True))
-    service.create_book(BookCreate(title="Livro B", author="Autor B", available=False))
-
-    available_books = service.list_books(available=True)
-    unavailable_books = service.list_books(available=False)
-
-    assert len(available_books) == 1
-    assert available_books[0].title == "Livro A"
-    assert len(unavailable_books) == 1
-    assert unavailable_books[0].title == "Livro B"
-
+def test_create_uses_parameters(conn):
+    conn.fetchrow.return_value = dict(id=1, title="Livro", author="Autor", available=True)
+    result = asyncio.run(BookService().create_book(BookCreate(title="Livro", author="Autor")))
+    assert result.id == 1
+    assert conn.fetchrow.call_args.args[1:] == ("Livro", "Autor", True)
 
 @pytest.mark.unit
-def test_get_book_raises_not_found(service):
+def test_missing_book_returns_404(conn):
+    conn.fetchrow.return_value = None
     with pytest.raises(HTTPException) as exc:
-        service.get_book(99)
-
+        asyncio.run(BookService().get_book(99))
     assert exc.value.status_code == 404
-    assert exc.value.detail == "Livro não encontrado"
-
 
 @pytest.mark.unit
-def test_replace_book_overwrites_all_fields(service):
-    created = service.create_book(BookCreate(title="Antigo", author="Autor", available=True))
-
-    updated = service.replace_book(
-        created.id,
-        BookUpdate(title="Novo", author="Outro autor", available=False),
-    )
-
-    assert updated.title == "Novo"
-    assert updated.author == "Outro autor"
-    assert updated.available is False
-
-
-@pytest.mark.unit
-def test_patch_book_updates_only_sent_fields(service):
-    created = service.create_book(BookCreate(title="Título", author="Autor", available=True))
-
-    patched = service.patch_book(created.id, BookPatch(available=False))
-
-    assert patched.title == "Título"
-    assert patched.author == "Autor"
-    assert patched.available is False
-
-
-@pytest.mark.unit
-def test_delete_book_removes_resource(service):
-    created = service.create_book(BookCreate(title="Apagar", author="Autor"))
-
-    service.delete_book(created.id)
-
+def test_missing_delete_returns_404(conn):
+    conn.execute.return_value = "DELETE 0"
     with pytest.raises(HTTPException) as exc:
-        service.get_book(created.id)
-
+        asyncio.run(BookService().delete_book(99))
     assert exc.value.status_code == 404
+
+
+@pytest.mark.unit
+def test_list_filters_and_maps_rows(conn):
+    conn.fetch.return_value = [dict(id=2, title="Livro", author="Autor", available=False)]
+    result = asyncio.run(BookService().list_books(False))
+    assert result[0].available is False
+    assert conn.fetch.call_args.args[1:] == (False,)
+
+
+@pytest.mark.unit
+def test_replace_updates_all_fields(conn):
+    from app.schemas.book import BookUpdate
+    conn.fetchrow.return_value = dict(id=2, title="Novo", author="Outro", available=False)
+    result = asyncio.run(BookService().replace_book(2, BookUpdate(title="Novo", author="Outro", available=False)))
+    assert result.title == "Novo"
+    assert conn.fetchrow.call_args.args[1:] == ("Novo", "Outro", False, 2)
+
+
+@pytest.mark.unit
+def test_patch_updates_only_sent_fields(conn):
+    from app.schemas.book import BookPatch
+    conn.fetchrow.return_value = dict(id=2, title="Original", author="Autor", available=False)
+    result = asyncio.run(BookService().patch_book(2, BookPatch(available=False)))
+    assert result.title == "Original"
+    assert "SET available=$1" in conn.fetchrow.call_args.args[0]
+    assert conn.fetchrow.call_args.args[1:] == (False, 2)
+
+
+@pytest.mark.unit
+def test_delete_existing_book(conn):
+    conn.execute.return_value = "DELETE 1"
+    assert asyncio.run(BookService().delete_book(2)) is None
+    assert conn.execute.call_args.args[1:] == (2,)

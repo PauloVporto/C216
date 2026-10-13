@@ -66,3 +66,7 @@ rebuild:
 
 clean:
 	docker compose down -v --remove-orphans
+
+.PHONY: test-docker
+test-docker:
+	docker compose run --build --rm tests

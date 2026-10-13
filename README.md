@@ -37,3 +37,38 @@ make build
 make up
 make health
 ```
+
+## Prática 5 — PostgreSQL e asyncpg
+
+Livros (`/books`) e alunos (`/alunos`) são persistidos no PostgreSQL, com
+rotas assíncronas, serviços, schemas e middlewares de logs e `X-App-Version`.
+Alunos possuem `nome`, `curso` e `email`; `GET /alunos?curso=...` filtra por curso.
+A API oferece listagem, busca por ID, criação, atualização e remoção.
+
+```bash
+docker compose up --build -d
+docker compose run --build --rm tests
+```
+
+Os testes usam um PostgreSQL exclusivo (`db-test`), separado dos dados da API.
+Para executar integração localmente, defina `TEST_DATABASE_URL` apontando para
+um banco exclusivo de testes: as tabelas desse banco são limpas antes de cada teste.
+Os testes unitários usam mocks e não precisam de banco.
+
+O teste de alunos cadastra três alunos por curso em dois cursos, lista, busca,
+atualiza, remove e verifica os dados em uma nova aplicação com novas conexões.
+O volume `postgres_data` preserva os dados da API entre reinícios de containers.
+`docker compose down` preserva esse volume; `make clean` o remove.
+
+O SQL inicial usa `CREATE TABLE IF NOT EXISTS` para não apagar dados.
+Em um volume criado nas práticas anteriores, aplique o schema uma vez:
+
+```bash
+docker compose exec -T db psql -U c216 -d c216 < backend/app/db/init.sql
+```
+
+### Evidências em `img/`
+
+Após rodar os testes, salve um print do resultado e um print dos logs de
+`docker compose logs backend` mostrando chamadas à API. Consulte `img/README.md`
+para o roteiro de validação de persistência entre reinícios.
