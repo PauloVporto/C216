@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.api.routers import books, health, students
+from app.routes import books, health, students
 from app.middlewares.logging import log_requests
 from app.middlewares.custom_header import add_custom_header
 

@@ -5,7 +5,7 @@ from pathlib import Path
 import asyncpg
 import pytest
 from fastapi.testclient import TestClient
-from main import app
+from app.main import app
 
 @pytest.fixture
 def client():

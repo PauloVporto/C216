@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from main import app
+from app.main import app
 
 @pytest.mark.integration
 def test_students_crud_and_persistence(client):
@@ -22,7 +22,7 @@ def test_students_crud_and_persistence(client):
     assert response.json() == dict(id=aluno["id"], **payload)
     # Uma nova aplicação e novas conexões recuperam os dados gravados.
     from fastapi import FastAPI
-    from app.api.routers.students import router
+    from app.routes.students import router
     restarted_app = FastAPI()
     restarted_app.include_router(router)
     with TestClient(restarted_app) as restarted:

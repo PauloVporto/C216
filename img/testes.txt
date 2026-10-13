@@ -2,7 +2,7 @@
 platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.6.0 -- /usr/local/bin/python3.12
 cachedir: .pytest_cache
 rootdir: /app
-configfile: pyproject.toml
+configfile: pytest.ini
 testpaths: tests
 plugins: anyio-4.14.2, platformdirs-4.13.0
 collecting ... collected 29 items
@@ -43,4 +43,4 @@ tests/unit/test_book_service.py::test_delete_existing_book PASSED        [100%]
     from starlette.testclient import TestClient as TestClient  # noqa
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 29 passed, 1 warning in 0.30s =========================
+======================== 29 passed, 1 warning in 0.31s =========================

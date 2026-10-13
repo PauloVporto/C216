@@ -73,3 +73,28 @@ As capturas dos 29 testes aprovados, dos logs reais da API e da persistência
 após reiniciar backend e PostgreSQL estão em [img/README.md](img/README.md).
 A validação criou três alunos em cada um de dois cursos, listou, buscou por ID,
 atualizou e removeu um aluno, confirmando os registros após o reinício.
+
+## Estrutura do backend
+
+```text
+backend/
+├── app/
+│   ├── db/
+│   │   ├── connection.py
+│   │   └── init.sql
+│   ├── middlewares/
+│   ├── routes/
+│   ├── services/
+│   ├── schemas/
+│   └── main.py
+├── tests/
+├── Dockerfile
+├── requirements.txt
+└── pytest.ini
+```
+
+O Compose fica na raiz do repositório. A estrutura do backend segue o modelo
+da prática; Poetry continua disponível para os comandos anteriores.
+`requirements.txt` contém as versões do lock, incluindo testes, para instalação
+alternativa com `pip install -r requirements.txt`. Ao atualizar dependências,
+atualize também esse arquivo. A API inicia com `uvicorn app.main:app`.
