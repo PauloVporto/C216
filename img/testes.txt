@@ -1,0 +1,46 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.6.0 -- /usr/local/bin/python3.12
+cachedir: .pytest_cache
+rootdir: /app
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.14.2, platformdirs-4.13.0
+collecting ... collected 29 items
+
+tests/integration/test_books_api.py::test_create_book_returns_created PASSED [  3%]
+tests/integration/test_books_api.py::test_list_books_returns_collection PASSED [  6%]
+tests/integration/test_books_api.py::test_list_books_filters_by_query_parameter PASSED [ 10%]
+tests/integration/test_books_api.py::test_get_book_by_path_parameter PASSED [ 13%]
+tests/integration/test_books_api.py::test_get_book_returns_not_found PASSED [ 17%]
+tests/integration/test_books_api.py::test_put_book_replaces_resource PASSED [ 20%]
+tests/integration/test_books_api.py::test_patch_book_updates_partial_fields PASSED [ 24%]
+tests/integration/test_books_api.py::test_delete_book_removes_resource PASSED [ 27%]
+tests/integration/test_books_api.py::test_create_book_validates_payload PASSED [ 31%]
+tests/integration/test_health.py::test_root_returns_success PASSED       [ 34%]
+tests/integration/test_health.py::test_health_returns_ok PASSED          [ 37%]
+tests/integration/test_health.py::test_public_routes_status_code[/-200] PASSED [ 41%]
+tests/integration/test_health.py::test_public_routes_status_code[/health-200] PASSED [ 44%]
+tests/integration/test_health.py::test_public_routes_status_code[/docs-200] PASSED [ 48%]
+tests/integration/test_health.py::test_public_routes_status_code[/openapi.json-200] PASSED [ 51%]
+tests/integration/test_health.py::test_unknown_route_returns_not_found PASSED [ 55%]
+tests/integration/test_health.py::test_health_does_not_accept_post PASSED [ 58%]
+tests/integration/test_students_api.py::test_students_crud_and_persistence PASSED [ 62%]
+tests/integration/test_students_api.py::test_missing_student[get] PASSED [ 65%]
+tests/integration/test_students_api.py::test_missing_student[put] PASSED [ 68%]
+tests/integration/test_students_api.py::test_missing_student[delete] PASSED [ 72%]
+tests/integration/test_students_api.py::test_validation_and_header PASSED [ 75%]
+tests/unit/test_book_service.py::test_create_uses_parameters PASSED      [ 79%]
+tests/unit/test_book_service.py::test_missing_book_returns_404 PASSED    [ 82%]
+tests/unit/test_book_service.py::test_missing_delete_returns_404 PASSED  [ 86%]
+tests/unit/test_book_service.py::test_list_filters_and_maps_rows PASSED  [ 89%]
+tests/unit/test_book_service.py::test_replace_updates_all_fields PASSED  [ 93%]
+tests/unit/test_book_service.py::test_patch_updates_only_sent_fields PASSED [ 96%]
+tests/unit/test_book_service.py::test_delete_existing_book PASSED        [100%]
+
+=============================== warnings summary ===============================
+../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 29 passed, 1 warning in 0.31s =========================

@@ -10,6 +10,7 @@ dependencies = [
     "fastapi (>=0.141.1,<0.142.0)",
     "uvicorn (>=0.52.1,<0.53.0)",
     "requests (>=2.34.2,<3.0.0)",
+    "asyncpg (>=0.30.0,<1.0.0)",
     "python-dotenv (>=1.2.2,<2.0.0)"
 ]
 
@@ -17,3 +18,9 @@ dependencies = [
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.1.1,<10.0.0)",
+    "httpx (>=0.28.1,<0.29.0)"
+]

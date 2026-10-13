@@ -1,0 +1,35 @@
+c216_backend  | INFO:     192.168.65.1:40036 - "POST /alunos HTTP/1.1" 201 Created
+c216_backend  | INFO:     POST /alunos 201 0.0044s
+c216_backend  | INFO:     192.168.65.1:34859 - "POST /alunos HTTP/1.1" 201 Created
+c216_backend  | INFO:     POST /alunos 201 0.0042s
+c216_backend  | INFO:     192.168.65.1:16002 - "POST /alunos HTTP/1.1" 201 Created
+c216_backend  | INFO:     GET /alunos 200 0.0070s
+c216_backend  | INFO:     192.168.65.1:19026 - "GET /alunos HTTP/1.1" 200 OK
+c216_backend  | INFO:     GET /alunos/1 200 0.0037s
+c216_backend  | INFO:     192.168.65.1:20056 - "GET /alunos/1 HTTP/1.1" 200 OK
+c216_backend  | INFO:     192.168.65.1:20398 - "PUT /alunos/1 HTTP/1.1" 200 OK
+c216_backend  | INFO:     PUT /alunos/1 200 0.0076s
+c216_backend  | INFO:     Shutting down
+c216_backend  | INFO:     Waiting for application shutdown.
+c216_backend  | INFO:     Application shutdown complete.
+c216_backend  | INFO:     Finished server process [1]
+c216_backend  | INFO:     Started server process [1]
+c216_backend  | INFO:     Waiting for application startup.
+c216_backend  | INFO:     Application startup complete.
+c216_backend  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+c216_backend  | INFO:     GET /alunos/1 200 0.0239s
+c216_backend  | INFO:     192.168.65.1:50605 - "GET /alunos/1 HTTP/1.1" 200 OK
+c216_backend  | INFO:     GET /alunos/2 200 0.0049s
+c216_backend  | INFO:     192.168.65.1:56923 - "GET /alunos/2 HTTP/1.1" 200 OK
+c216_backend  | INFO:     GET /alunos/3 200 0.0044s
+c216_backend  | INFO:     192.168.65.1:48042 - "GET /alunos/3 HTTP/1.1" 200 OK
+c216_backend  | INFO:     GET /alunos/4 200 0.0046s
+c216_backend  | INFO:     192.168.65.1:59606 - "GET /alunos/4 HTTP/1.1" 200 OK
+c216_backend  | INFO:     GET /alunos/5 200 0.0041s
+c216_backend  | INFO:     192.168.65.1:61965 - "GET /alunos/5 HTTP/1.1" 200 OK
+c216_backend  | INFO:     GET /alunos/6 200 0.0041s
+c216_backend  | INFO:     192.168.65.1:43365 - "GET /alunos/6 HTTP/1.1" 200 OK
+c216_backend  | INFO:     DELETE /alunos/1 204 0.0043s
+c216_backend  | INFO:     192.168.65.1:64001 - "DELETE /alunos/1 HTTP/1.1" 204 No Content
+c216_backend  | INFO:     GET /alunos/1 404 0.0036s
+c216_backend  | INFO:     192.168.65.1:32761 - "GET /alunos/1 HTTP/1.1" 404 Not Found
