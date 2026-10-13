@@ -69,6 +69,7 @@ docker compose exec -T db psql -U c216 -d c216 < backend/app/db/init.sql
 
 ### Evidências em `img/`
 
-Após rodar os testes, salve um print do resultado e um print dos logs de
-`docker compose logs backend` mostrando chamadas à API. Consulte `img/README.md`
-para o roteiro de validação de persistência entre reinícios.
+As capturas dos 29 testes aprovados, dos logs reais da API e da persistência
+após reiniciar backend e PostgreSQL estão em [img/README.md](img/README.md).
+A validação criou três alunos em cada um de dois cursos, listou, buscou por ID,
+atualizou e removeu um aluno, confirmando os registros após o reinício.
