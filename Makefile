@@ -70,3 +70,28 @@ clean:
 .PHONY: test-docker
 test-docker:
 	docker compose run --build --rm tests
+
+.PHONY: frontend-install frontend-dev frontend-lint frontend-format frontend-test frontend-build frontend-e2e check-all
+frontend-install:
+	cd frontend && npm ci
+
+frontend-dev:
+	cd frontend && npm run dev
+
+frontend-lint:
+	cd frontend && npm run check
+
+frontend-format:
+	cd frontend && npm run format
+
+frontend-test:
+	cd frontend && npm test
+
+frontend-build:
+	cd frontend && npm run build
+
+frontend-e2e:
+	cd frontend && npm run test:e2e
+
+check-all:
+	cd frontend && npm run lint && npm run format:check && npm run check && npm test && npm run build && npm run test:e2e

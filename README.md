@@ -269,3 +269,100 @@ fornece o banco exclusivo usado pelos testes de integração.
 | Adicionar três alunos por curso e testar CRUD | Teste com dois cursos, listagem, busca, atualização e remoção |
 | Validar persistência dos dados | Teste com novas conexões e validação após reiniciar containers |
 | Salvar prints em `img/` | Capturas dos testes, logs da API e persistência |
+
+## Prática 6 — Frontend com React
+
+O diretório `frontend/` contém um projeto independente em JavaScript, com
+React, Vite, Tailwind CSS v4, Biome, Vitest, React Testing Library e Playwright.
+O backend e o Docker Compose da prática 5 permanecem como entregues.
+
+### Executar
+
+Requisito: Node.js 22 LTS atualizado (22.12 ou superior) e npm.
+
+```bash
+cd frontend
+npm ci
+npm run dev
+```
+
+Abra http://localhost:5173. Informe um nome obrigatório de até 100 caracteres
+e, opcionalmente, uma descrição. Ao adicionar, o item aparece na listagem e
+os campos são limpos. Espaços nas extremidades são removidos; entradas
+inválidas exibem mensagens associadas ao campo. A interface adapta-se ao celular.
+Os dados ficam somente no estado React e desaparecem ao recarregar a página.
+Não há chamadas à API nem persistência em localStorage.
+
+### Organização
+
+```text
+frontend/
+├── src/
+│   ├── components/ItemForm.jsx  # formulário e mensagens de erro
+│   ├── components/ItemList.jsx  # listagem e estado vazio
+│   ├── App.jsx                 # estado e composição dos componentes
+│   ├── validation.js           # função pura de validação
+│   ├── main.jsx
+│   └── index.css               # importação do Tailwind v4
+├── tests/
+│   ├── setup.js
+│   ├── unit/                   # validação e componentes isolados
+│   ├── integration/            # cadastro integrado à listagem
+│   └── e2e/                    # navegação real com Chromium
+├── biome.json
+├── vite.config.js
+├── playwright.config.js
+└── package-lock.json
+```
+
+`App` guarda os itens com `useState`, envia `onAdd` ao formulário e `items`
+à lista. Cada item recebe `crypto.randomUUID()` para uma `key` estável.
+A função `addItem` concentra a futura integração HTTP da prática 7.
+
+### Qualidade e testes
+
+```bash
+cd frontend
+npm ci
+npx playwright install chromium
+npm run lint
+npm run format:check
+npm run check
+npm test
+npm run build
+npm run test:e2e
+```
+
+Para formatar, use `npm run format`; para acompanhar testes, `npm run test:watch`.
+Na raiz, `make frontend-install`, `make frontend-dev`, `make frontend-test`,
+`make frontend-build` e `make frontend-e2e` oferecem os mesmos comandos.
+`make check-all` executa o checklist de qualidade, testes e build do frontend
+(após instalar dependências e Chromium); os comandos existentes do backend continuam disponíveis.
+
+O Vitest executa somente `tests/unit` e `tests/integration`, usando jsdom e
+limpeza do DOM após cada teste. O Playwright inicia o Vite automaticamente
+na porta 5173 e executa `tests/e2e` no Chromium. Os cenários verificam cadastro,
+validação, descrição opcional, limpeza dos campos, múltiplos itens, ausência de
+requisições fetch/XHR, perda do estado ao recarregar e layout em 375 pixels.
+
+### CI e entrega
+
+O workflow `.github/workflows/ci-frontend.yml` usa Node.js 22 e `npm ci`,
+verifica lint, formatação e imports, executa Vitest, build e Playwright,
+e disponibiliza o relatório E2E como artefato. Os dois workflows usam `paths`
+para disparar conforme os arquivos de frontend ou backend modificados.
+Checks obrigatórios com filtros podem ficar pendentes quando o workflow não dispara.
+
+As evidências da prática 6 estão em [img/pratica-6/](img/pratica-6/README.md).
+A containerização do frontend e a integração full-stack ficam para a prática 7.
+
+| Requisito da Prática 6 | Implementação |
+|---|---|
+| Cadastro e listagem em memória | App, ItemForm e ItemList |
+| Nome obrigatório, máximo 100 caracteres | validateItem e mensagens acessíveis |
+| Descrição opcional | Textarea e listagem condicional |
+| Interface responsiva | Classes Tailwind v4 e teste de celular |
+| Lint e formatação | Biome, sem ESLint ou Prettier |
+| Testes em três níveis | Vitest + RTL e Playwright/Chromium |
+| CI e lockfile | ci-frontend.yml e package-lock.json versionado |
+| Sem chamadas ao backend | Estado local e verificação E2E de fetch/XHR |
