@@ -278,7 +278,7 @@ O backend e o Docker Compose da prática 5 permanecem como entregues.
 
 ### Executar
 
-Requisito: Node.js 22 LTS atualizado (22.12 ou superior) e npm.
+Requisito: Node.js 22 LTS atualizado (22.22.2 ou superior) e npm.
 
 ```bash
 cd frontend
