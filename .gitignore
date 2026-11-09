@@ -28,3 +28,4 @@ Thumbs.db
 # Arquivos temporários
 *.log
 *.tmp
+!.env.example

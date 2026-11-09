@@ -1,0 +1,16 @@
+
+> c216-pratica-6@1.0.0 test:e2e
+> playwright test
+
+[WebServer] (node:56300) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:56303) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › tests/e2e/items.spec.js:3:1 › cadastra itens sem chamar o backend e perde os dados ao recarregar (1.0s)
+  ✓  2 [chromium] › tests/e2e/items.spec.js:27:1 › valida nome obrigatório e limite de 100 caracteres (186ms)
+  ✓  3 [chromium] › tests/e2e/items.spec.js:39:1 › permite cadastro em tela de celular sem rolagem horizontal (142ms)
+
+  3 passed (4.6s)

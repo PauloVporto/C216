@@ -1,0 +1,16 @@
+POST /alunos: 201 {"nome": "Aluno 1", "curso": "C216 - Software", "email": "aluno1@example.com", "id": 1}
+POST /alunos: 201 {"nome": "Aluno 2", "curso": "C216 - Software", "email": "aluno2@example.com", "id": 2}
+POST /alunos: 201 {"nome": "Aluno 3", "curso": "C216 - Software", "email": "aluno3@example.com", "id": 3}
+POST /alunos: 201 {"nome": "Aluno 1", "curso": "C216 - Computacao", "email": "aluno1@example.com", "id": 4}
+POST /alunos: 201 {"nome": "Aluno 2", "curso": "C216 - Computacao", "email": "aluno2@example.com", "id": 5}
+POST /alunos: 201 {"nome": "Aluno 3", "curso": "C216 - Computacao", "email": "aluno3@example.com", "id": 6}
+GET /alunos: seis alunos criados presentes
+PUT /alunos: {"nome": "Aluno atualizado", "curso": "C216 - Software", "email": "atualizado@example.com", "id": 1}
+Reiniciando backend e PostgreSQL...
+ Container c216_backend Restarting
+ Container c216_db Restarting
+ Container c216_db Started
+ Container c216_backend Started
+PERSISTENCIA CONFIRMADA: seis alunos preservados apos reiniciar API e banco.
+DELETE /alunos: 204; consulta posterior: 404.
+VALIDACAO CRUD E PERSISTENCIA: APROVADA.

@@ -1,0 +1,311 @@
+cd backend && /tmp/c216-pratica7-tools/bin/poetry run ruff check .
+All checks passed!
+cd backend && /tmp/c216-pratica7-tools/bin/poetry run ruff format --check .
+38 files already formatted
+cd frontend && npm run check
+
+> c216-pratica-7@1.0.0 check
+> biome check .
+
+Checked 18 files in 5ms. No fixes applied.
+cd frontend && npm test
+
+> c216-pratica-7@1.0.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /Users/pauloporto/Documents/GitHub/C216/frontend
+
+
+ Test Files  4 passed (4)
+      Tests  19 passed (19)
+   Start at  20:44:28
+   Duration  1.17s (environment 66%, tests 17%, setup 13%, import 2%, transform 1%)
+
+cd frontend && npm run build
+
+> c216-pratica-7@1.0.0 build
+> vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 20 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.37 kB │ gzip:  0.27 kB
+dist/assets/index-EyCDbM0j.css   10.45 kB │ gzip:  2.74 kB
+dist/assets/index-Crg0Rls-.js   223.67 kB │ gzip: 70.11 kB
+
+✓ built in 82ms
+docker compose run --build --rm tests
+ Container c216-db-test-1 Running 
+ Image c216-tests Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 561B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 557B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.12-slim
+#3 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 177B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 6.04kB done
+#5 DONE 0.0s
+
+#6 [base 1/4] FROM docker.io/library/python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30
+#6 resolve docker.io/library/python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30 0.0s done
+#6 DONE 0.0s
+
+#7 [base 2/4] WORKDIR /app
+#7 CACHED
+
+#8 [base 4/4] COPY pyproject.toml poetry.lock ./
+#8 CACHED
+
+#9 [base 3/4] RUN pip install --no-cache-dir poetry
+#9 CACHED
+
+#10 [tests 1/2] RUN poetry install --no-root --no-interaction --no-ansi
+#10 CACHED
+
+#11 [tests 2/2] COPY . .
+#11 CACHED
+
+#12 exporting to image
+#12 exporting layers done
+#12 exporting manifest sha256:834b31da8146e66f3bf5b0d7d6c08f2628aa3f0dd743219879fabb5937298950 done
+#12 exporting config sha256:0adfbd91bf2e343c52ae08274a967fc089b21a9e0b3a4b79399fc828bfa548a1 done
+#12 exporting attestation manifest sha256:b8e356f8943da24fad720f30282dfc8229c6b33f378bca609a3f98669ce2891d done
+#12 exporting manifest list sha256:9e230c627aba43bc1f106c3e38d0969c35c29374fc6ba5e5fce11c02903c101d done
+#12 naming to docker.io/library/c216-tests:latest done
+#12 unpacking to docker.io/library/c216-tests:latest done
+#12 DONE 0.0s
+
+#13 resolving provenance for metadata file
+#13 DONE 0.0s
+ Image c216-tests Built 
+ Container c216-db-test-1 Waiting 
+ Container c216-db-test-1 Healthy 
+ Container c216-tests-run-36bd39f1bac8 Creating 
+ Container c216-tests-run-36bd39f1bac8 Created 
+============================= test session starts ==============================
+platform linux -- Python 3.12.16, pytest-9.1.1, pluggy-1.6.0 -- /usr/local/bin/python3.12
+cachedir: .pytest_cache
+rootdir: /app
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.14.2, platformdirs-4.14.5
+collecting ... collected 39 items
+
+tests/integration/test_books_api.py::test_create_book_returns_created PASSED [  2%]
+tests/integration/test_books_api.py::test_list_books_returns_collection PASSED [  5%]
+tests/integration/test_books_api.py::test_list_books_filters_by_query_parameter PASSED [  7%]
+tests/integration/test_books_api.py::test_get_book_by_path_parameter PASSED [ 10%]
+tests/integration/test_books_api.py::test_get_book_returns_not_found PASSED [ 12%]
+tests/integration/test_books_api.py::test_put_book_replaces_resource PASSED [ 15%]
+tests/integration/test_books_api.py::test_patch_book_updates_partial_fields PASSED [ 17%]
+tests/integration/test_books_api.py::test_delete_book_removes_resource PASSED [ 20%]
+tests/integration/test_books_api.py::test_create_book_validates_payload PASSED [ 23%]
+tests/integration/test_health.py::test_root_returns_success PASSED       [ 25%]
+tests/integration/test_health.py::test_health_returns_ok PASSED          [ 28%]
+tests/integration/test_health.py::test_public_routes_status_code[/-200] PASSED [ 30%]
+tests/integration/test_health.py::test_public_routes_status_code[/health-200] PASSED [ 33%]
+tests/integration/test_health.py::test_public_routes_status_code[/docs-200] PASSED [ 35%]
+tests/integration/test_health.py::test_public_routes_status_code[/openapi.json-200] PASSED [ 38%]
+tests/integration/test_health.py::test_unknown_route_returns_not_found PASSED [ 41%]
+tests/integration/test_health.py::test_health_does_not_accept_post PASSED [ 43%]
+tests/integration/test_item_migrations.py::test_alembic_upgrade_new_database_and_current_head PASSED [ 46%]
+tests/integration/test_item_migrations.py::test_alembic_preserves_existing_items PASSED [ 48%]
+tests/integration/test_items_api.py::test_items_persist_and_conflict PASSED [ 51%]
+tests/integration/test_items_api.py::test_invalid_name[] PASSED          [ 53%]
+tests/integration/test_items_api.py::test_invalid_name[   ] PASSED       [ 56%]
+tests/integration/test_items_api.py::test_invalid_name[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED [ 58%]
+tests/integration/test_items_api.py::test_maximum_name_and_optional_description PASSED [ 61%]
+tests/integration/test_items_api.py::test_can_create_after_duplicate_error PASSED [ 64%]
+tests/integration/test_students_api.py::test_students_crud_and_persistence PASSED [ 66%]
+tests/integration/test_students_api.py::test_missing_student[get] PASSED [ 69%]
+tests/integration/test_students_api.py::test_missing_student[put] PASSED [ 71%]
+tests/integration/test_students_api.py::test_missing_student[delete] PASSED [ 74%]
+tests/integration/test_students_api.py::test_validation_and_header PASSED [ 76%]
+tests/unit/test_book_service.py::test_create_uses_parameters PASSED      [ 79%]
+tests/unit/test_book_service.py::test_missing_book_returns_404 PASSED    [ 82%]
+tests/unit/test_book_service.py::test_missing_delete_returns_404 PASSED  [ 84%]
+tests/unit/test_book_service.py::test_list_filters_and_maps_rows PASSED  [ 87%]
+tests/unit/test_book_service.py::test_replace_updates_all_fields PASSED  [ 89%]
+tests/unit/test_book_service.py::test_patch_updates_only_sent_fields PASSED [ 92%]
+tests/unit/test_book_service.py::test_delete_existing_book PASSED        [ 94%]
+tests/unit/test_cors.py::test_cors_preflight[http://localhost:5173-True] PASSED [ 97%]
+tests/unit/test_cors.py::test_cors_preflight[https://unknown.example-False] PASSED [100%]
+
+============================== 39 passed in 0.60s ==============================
+./scripts/e2e.sh
+ Image lab-e2e-api Building 
+ Image lab-e2e-frontend Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.03kB done
+#1 DONE 0.0s
+
+#2 [api internal] load build definition from Dockerfile
+#2 transferring dockerfile: 557B done
+#2 DONE 0.0s
+
+#3 [frontend internal] load build definition from Dockerfile
+#3 transferring dockerfile: 213B done
+#3 DONE 0.0s
+
+#4 [api internal] load metadata for docker.io/library/python:3.12-slim
+#4 DONE 0.0s
+
+#5 [frontend internal] load metadata for docker.io/library/node:22-alpine
+#5 DONE 0.0s
+
+#6 [api internal] load .dockerignore
+#6 transferring context: 177B done
+#6 DONE 0.0s
+
+#7 [frontend internal] load .dockerignore
+#7 transferring context: 95B done
+#7 DONE 0.0s
+
+#8 [api internal] load build context
+#8 transferring context: 6.04kB done
+#8 DONE 0.0s
+
+#9 [frontend internal] load build context
+#9 transferring context: 4.90kB done
+#9 DONE 0.0s
+
+#10 [api base 1/4] FROM docker.io/library/python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30
+#10 resolve docker.io/library/python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30 0.0s done
+#10 DONE 0.0s
+
+#11 [frontend 1/5] FROM docker.io/library/node:22-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914
+#11 resolve docker.io/library/node:22-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914 done
+#11 DONE 0.0s
+
+#12 [frontend 3/5] COPY package*.json ./
+#12 CACHED
+
+#13 [frontend 2/5] WORKDIR /app
+#13 CACHED
+
+#14 [api base 4/4] COPY pyproject.toml poetry.lock ./
+#14 CACHED
+
+#15 [api runtime 1/2] RUN poetry install --only main --no-root --no-interaction --no-ansi
+#15 CACHED
+
+#16 [api base 3/4] RUN pip install --no-cache-dir poetry
+#16 CACHED
+
+#17 [api base 2/4] WORKDIR /app
+#17 CACHED
+
+#18 [frontend 4/5] RUN npm ci
+#18 CACHED
+
+#19 [api runtime 2/2] COPY . .
+#19 CACHED
+
+#20 [frontend 5/5] COPY . .
+#20 DONE 0.0s
+
+#21 [api] exporting to image
+#21 exporting layers done
+#21 exporting manifest sha256:3ba3f177648b904c13173209d4937b7fa74130a1ed3219df163cba8f6b7695b5 done
+#21 exporting config sha256:bd8c29cafa485be4292be4e6e1a18c421e5d08e67eb6fd430db0cff3d0597fa8 done
+#21 exporting attestation manifest sha256:561a89ac7af7d4d2ce4f926c51c28c686a020e31fd1ff9b7c0738cef50dc8ef3 done
+#21 exporting manifest list sha256:a818abbdd9c14bfbc3f812100fa3d5625d5e1fb67e1b6dbfee9199f40414d4ae 0.0s done
+#21 naming to docker.io/library/lab-e2e-api:latest done
+#21 unpacking to docker.io/library/lab-e2e-api:latest done
+#21 DONE 0.1s
+
+#22 [frontend] exporting to image
+#22 exporting layers 0.0s done
+#22 exporting manifest sha256:76a952bfbe84a4284b785870c937b396c5a335af5aa45ecc24110e0dc7d07ac0 done
+#22 exporting config sha256:1efa2bf70c1d97d39c5bcd600f4a2bf75ff4adfc651de5e9ad25074297593821 0.0s done
+#22 exporting attestation manifest sha256:a70332bda180ff5b73213610bb3e1562791461ec1daa58361d8be9b8682dc701 done
+#22 exporting manifest list sha256:941c8584fc1c925e0b1373eccddc1f09097f34117cd41c0d19d1b4bfe0a84a69 done
+#22 naming to docker.io/library/lab-e2e-frontend:latest done
+#22 unpacking to docker.io/library/lab-e2e-frontend:latest 0.0s done
+#22 DONE 0.1s
+
+#23 [api] resolving provenance for metadata file
+#23 DONE 0.0s
+
+#24 [frontend] resolving provenance for metadata file
+#24 DONE 0.0s
+ Image lab-e2e-api Built 
+ Image lab-e2e-frontend Built 
+ Network lab-e2e_default Creating 
+ Volume lab-e2e_postgres_data Creating 
+ Volume lab-e2e_postgres_data Creating 
+ Network lab-e2e_default Creating 
+ Volume lab-e2e_postgres_data Created 
+ Volume lab-e2e_postgres_data Created 
+ Network lab-e2e_default Created 
+ Network lab-e2e_default Created 
+ Container lab-e2e-db-1 Creating 
+ Container lab-e2e-db-1 Created 
+ Container lab-e2e-api-1 Creating 
+ Container lab-e2e-api-1 Created 
+ Container lab-e2e-frontend-1 Creating 
+ Container lab-e2e-frontend-1 Created 
+ Container lab-e2e-db-1 Starting 
+ Container lab-e2e-db-1 Started 
+ Container lab-e2e-db-1 Waiting 
+ Container lab-e2e-db-1 Healthy 
+ Container lab-e2e-api-1 Starting 
+ Container lab-e2e-api-1 Started 
+ Container lab-e2e-api-1 Waiting 
+ Container lab-e2e-api-1 Healthy 
+ Container lab-e2e-frontend-1 Starting 
+ Container lab-e2e-frontend-1 Started 
+ Container lab-e2e-frontend-1 Waiting 
+ Container lab-e2e-db-1 Waiting 
+ Container lab-e2e-api-1 Waiting 
+ Container lab-e2e-api-1 Healthy 
+ Container lab-e2e-db-1 Healthy 
+ Container lab-e2e-frontend-1 Healthy 
+007_items (head)
+NAME                 IMAGE                COMMAND                  SERVICE    CREATED          STATUS                    PORTS
+lab-e2e-api-1        lab-e2e-api          "uvicorn app.main:ap…"   api        12 seconds ago   Up 6 seconds (healthy)    0.0.0.0:8001->8000/tcp, [::]:8001->8000/tcp
+lab-e2e-db-1         postgres:16-alpine   "docker-entrypoint.s…"   db         12 seconds ago   Up 12 seconds (healthy)   5432/tcp
+lab-e2e-frontend-1   lab-e2e-frontend     "docker-entrypoint.s…"   frontend   12 seconds ago   Up 4 seconds (healthy)    0.0.0.0:5174->5173/tcp, [::]:5174->5173/tcp
+
+> c216-pratica-7@1.0.0 test:e2e
+> playwright test
+
+
+Running 3 tests using 1 worker
+
+(node:444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › tests/e2e/items.spec.js:6:1 › cadastra e persiste após recarregar; exibe conflito de nome (662ms)
+  ✓  2 [chromium] › tests/e2e/items.spec.js:70:1 › valida nome obrigatório e limite antes de chamar a API (223ms)
+  ✓  3 [chromium] › tests/e2e/items.spec.js:86:1 › cadastra no celular sem rolagem horizontal (288ms)
+
+  3 passed (1.7s)
+ Container lab-e2e-frontend-1 Stopping 
+ Container lab-e2e-frontend-1 Stopped 
+ Container lab-e2e-frontend-1 Removing 
+ Container lab-e2e-frontend-1 Removed 
+ Container lab-e2e-api-1 Stopping 
+ Container lab-e2e-api-1 Stopped 
+ Container lab-e2e-api-1 Removing 
+ Container lab-e2e-api-1 Removed 
+ Container lab-e2e-db-1 Stopping 
+ Container lab-e2e-db-1 Stopped 
+ Container lab-e2e-db-1 Removing 
+ Container lab-e2e-db-1 Removed 
+ Network lab-e2e_default Removing 
+ Volume lab-e2e_postgres_data Removing 
+ Volume lab-e2e_postgres_data Removed 
+ Network lab-e2e_default Removed 
