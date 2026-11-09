@@ -1,10 +1,27 @@
 import { randomUUID } from "node:crypto";
+import { writeFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 
 const uniqueName = (prefix) => `${prefix}-${randomUUID()}`;
 test("cadastra e persiste após recarregar; exibe conflito de nome", async ({
   page,
 }) => {
+  const network = [];
+  const methods = new Map();
+  const devtools = await page.context().newCDPSession(page);
+  await devtools.send("Network.enable");
+  devtools.on("Network.requestWillBeSent", ({ requestId, request }) => {
+    methods.set(requestId, request.method);
+  });
+  devtools.on("Network.responseReceived", ({ requestId, response }) => {
+    if (response.url.endsWith("/items/"))
+      network.push({
+        method: methods.get(requestId),
+        url: response.url,
+        status: response.status,
+        headers: response.headers,
+      });
+  });
   const name = uniqueName("Notebook");
   await page.goto("/");
   await expect(page.getByRole("button", { name: "Adicionar" })).toBeEnabled();
@@ -16,6 +33,13 @@ test("cadastra e persiste após recarregar; exibe conflito de nome", async ({
   await page.getByRole("button", { name: "Adicionar" }).click();
   const response = await post;
   expect(response.status()).toBe(201);
+  await expect
+    .poll(() =>
+      network.some(
+        (entry) => entry.method === "OPTIONS" && entry.status === 200,
+      ),
+    )
+    .toBe(true);
   expect(response.headers()["access-control-allow-origin"]).toBe(
     new URL(page.url()).origin,
   );
@@ -29,6 +53,15 @@ test("cadastra e persiste após recarregar; exibe conflito de nome", async ({
     "Já existe um item com esse nome",
   );
   await expect(page.getByLabel("Nome", { exact: true })).toHaveValue(name);
+  await expect
+    .poll(() =>
+      network.some((entry) => entry.method === "POST" && entry.status === 201),
+    )
+    .toBe(true);
+  await writeFile(
+    "../img/pratica-7/rede-cors.json",
+    JSON.stringify(network, null, 2),
+  );
   await page.screenshot({
     path: "../img/pratica-7/persistencia.png",
     fullPage: true,

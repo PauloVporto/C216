@@ -1,6 +1,6 @@
 .PHONY: help install run test test-unit test-integration build up down restart logs ps shell health rebuild clean
 
-POETRY=python -m poetry
+POETRY ?= poetry
 
 help:
 	@echo "Comandos disponíveis:"
@@ -18,10 +18,13 @@ help:
 	@echo "  make shell    - acessa o container do backend"
 	@echo "  make health   - verifica a saúde da API"
 	@echo "  make rebuild  - reconstrói o ambiente Docker"
+	@echo "  make lint / format - verifica / formata Python com Ruff"
+	@echo "  make db-upgrade / db-current - migrações Alembic"
+	@echo "  make e2e / check-all - E2E isolado / checklist completo"
 	@echo "  make clean    - remove containers e volumes"
 
 install:
-	cd backend && $(POETRY) install
+	cd backend && $(POETRY) install --no-root
 
 run:
 	cd backend && $(POETRY) run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
@@ -54,7 +57,7 @@ ps:
 	docker compose ps
 
 shell:
-	docker compose exec backend /bin/bash
+	docker compose exec api /bin/bash
 
 health:
 	curl http://localhost:8000/health
@@ -92,17 +95,17 @@ frontend-build:
 
 frontend-e2e: frontend-test-e2e
 
-check-all: frontend-check frontend-test frontend-build test-docker e2e
+check-all: lint format-check frontend-check frontend-test frontend-build test-docker e2e
 
 .PHONY: up-build db-upgrade db-current frontend-check frontend-test-e2e e2e
 up-build:
 	docker compose up --build -d --wait
 
 db-upgrade:
-	docker compose exec -T backend python -m app.db.migrate
+	docker compose exec -T api alembic upgrade head
 
 db-current:
-	docker compose exec -T db psql -U c216 -d c216 -c 'SELECT version FROM schema_migrations ORDER BY version;'
+	docker compose exec -T api alembic current
 
 frontend-check:
 	cd frontend && npm run check
@@ -112,3 +115,13 @@ frontend-test-e2e:
 
 e2e:
 	./scripts/e2e.sh
+
+.PHONY: lint format format-check
+lint:
+	cd backend && $(POETRY) run ruff check .
+
+format:
+	cd backend && $(POETRY) run ruff format .
+
+format-check:
+	cd backend && $(POETRY) run ruff format --check .

@@ -22,7 +22,9 @@ class BookService:
         async with connection() as conn:
             row = await conn.fetchrow(
                 "INSERT INTO books (title, author, available) VALUES ($1,$2,$3) RETURNING *",
-                payload.title, payload.author, payload.available,
+                payload.title,
+                payload.author,
+                payload.available,
             )
         return self._book(row)
 
@@ -30,7 +32,10 @@ class BookService:
         async with connection() as conn:
             row = await conn.fetchrow(
                 "UPDATE books SET title=$1, author=$2, available=$3 WHERE id=$4 RETURNING *",
-                payload.title, payload.author, payload.available, book_id,
+                payload.title,
+                payload.author,
+                payload.available,
+                book_id,
             )
         return self._book(row)
 
@@ -43,8 +48,9 @@ class BookService:
         assignments = ", ".join(f"{column}=${i}" for i, column in enumerate(columns, 1))
         async with connection() as conn:
             row = await conn.fetchrow(
-                f"UPDATE books SET {assignments} WHERE id=${len(columns)+1} RETURNING *",
-                *updates.values(), book_id,
+                f"UPDATE books SET {assignments} WHERE id=${len(columns) + 1} RETURNING *",
+                *updates.values(),
+                book_id,
             )
         return self._book(row)
 

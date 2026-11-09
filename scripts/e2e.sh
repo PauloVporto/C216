@@ -10,5 +10,7 @@ cleanup() { compose down -v --remove-orphans; }
 trap cleanup EXIT
 trap 'exit 130' INT TERM
 compose up --build -d --wait
-compose exec -T backend python -m app.db.migrate
+compose exec -T api alembic upgrade head
+compose exec -T api alembic current
+compose ps
 (cd frontend && npm run test:e2e)

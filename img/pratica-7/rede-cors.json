@@ -1,0 +1,102 @@
+[
+  {
+    "method": "GET",
+    "url": "http://localhost:8001/items/",
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://localhost:5174",
+      "content-length": "2",
+      "x-app-version": "1.0",
+      "date": "Mon, 09 Nov 2026 23:44:47 GMT",
+      "content-type": "application/json",
+      "vary": "Origin",
+      "server": "uvicorn"
+    }
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:8001/items/",
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://localhost:5174",
+      "content-length": "2",
+      "x-app-version": "1.0",
+      "date": "Mon, 09 Nov 2026 23:44:47 GMT",
+      "content-type": "application/json",
+      "vary": "Origin",
+      "server": "uvicorn"
+    }
+  },
+  {
+    "method": "OPTIONS",
+    "url": "http://localhost:8001/items/",
+    "status": 200,
+    "headers": {
+      "access-control-allow-headers": "Accept, Accept-Language, Content-Language, Content-Type",
+      "access-control-allow-methods": "GET, POST",
+      "access-control-allow-origin": "http://localhost:5174",
+      "access-control-max-age": "600",
+      "content-length": "2",
+      "content-type": "text/plain; charset=utf-8",
+      "date": "Mon, 09 Nov 2026 23:44:48 GMT",
+      "server": "uvicorn",
+      "vary": "Origin"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:8001/items/",
+    "status": 201,
+    "headers": {
+      "access-control-allow-origin": "http://localhost:5174",
+      "content-length": "92",
+      "x-app-version": "1.0",
+      "date": "Mon, 09 Nov 2026 23:44:48 GMT",
+      "content-type": "application/json",
+      "vary": "Origin",
+      "server": "uvicorn"
+    }
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:8001/items/",
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://localhost:5174",
+      "content-length": "94",
+      "x-app-version": "1.0",
+      "date": "Mon, 09 Nov 2026 23:44:48 GMT",
+      "content-type": "application/json",
+      "vary": "Origin",
+      "server": "uvicorn"
+    }
+  },
+  {
+    "method": "GET",
+    "url": "http://localhost:8001/items/",
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://localhost:5174",
+      "content-length": "94",
+      "x-app-version": "1.0",
+      "date": "Mon, 09 Nov 2026 23:44:48 GMT",
+      "content-type": "application/json",
+      "vary": "Origin",
+      "server": "uvicorn"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:8001/items/",
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://localhost:5174",
+      "content-length": "45",
+      "x-app-version": "1.0",
+      "date": "Mon, 09 Nov 2026 23:44:48 GMT",
+      "content-type": "application/json",
+      "vary": "Origin",
+      "server": "uvicorn"
+    }
+  }
+]

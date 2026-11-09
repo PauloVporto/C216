@@ -1,16 +1,20 @@
-from app.db.connection import connection
-from app.schemas.item import ItemCreate, ItemRead
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.item import Item
+from app.schemas.item import ItemCreate
+
 
 class ItemRepository:
-    async def list(self):
-        async with connection() as conn:
-            rows = await conn.fetch("SELECT id, name, description FROM items ORDER BY id")
-        return [ItemRead(**dict(row)) for row in rows]
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
-    async def create(self, item: ItemCreate):
-        async with connection() as conn:
-            row = await conn.fetchrow(
-                "INSERT INTO items (name, description) VALUES ($1, $2) RETURNING id, name, description",
-                item.name, item.description,
-            )
-        return ItemRead(**dict(row))
+    async def list(self):
+        return list(await self.session.scalars(select(Item).order_by(Item.id)))
+
+    async def create(self, values: ItemCreate):
+        item = Item(**values.model_dump())
+        self.session.add(item)
+        await self.session.commit()
+        await self.session.refresh(item)
+        return item

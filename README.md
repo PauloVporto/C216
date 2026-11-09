@@ -1,6 +1,6 @@
 # C216
 
-Backend FastAPI da disciplina C216, com PostgreSQL, asyncpg, Docker Compose,
+Aplicação full-stack da disciplina C216, com React, FastAPI, PostgreSQL, SQLAlchemy, Alembic, Docker Compose,
 Poetry, testes automatizados e integração contínua com GitHub Actions.
 
 ## Prática 5 — Persistência com PostgreSQL
@@ -19,7 +19,12 @@ A organização em camadas, os middlewares e os testes com TestClient foram mant
 ```text
 C216/
 ├── backend/
+│   ├── alembic/versions/007_create_items.py
+│   ├── alembic.ini
 │   ├── app/
+│   │   ├── database/session.py  # sessão SQLAlchemy
+│   │   ├── models/item.py       # model ORM
+│   │   ├── repositories/item.py # consultas SQLAlchemy
 │   │   ├── db/
 │   │   │   ├── connection.py
 │   │   │   └── init.sql
@@ -27,6 +32,7 @@ C216/
 │   │   │   ├── logging.py
 │   │   │   └── custom_header.py
 │   │   ├── routes/
+│   │   │   ├── items.py
 │   │   │   ├── books.py
 │   │   │   ├── students.py
 │   │   │   └── health.py
@@ -95,7 +101,8 @@ make health
 
 | Serviço | Função |
 |---|---|
-| `backend` | API FastAPI com Uvicorn na porta 8000 |
+| `api` | API FastAPI com Uvicorn na porta 8000 |
+| `frontend` | React/Vite na porta 5173 |
 | `db` | PostgreSQL 16 da API, com volume `postgres_data` |
 | `tests` | Execução do Pytest no target de testes do Dockerfile |
 | `db-test` | PostgreSQL exclusivo dos testes, com armazenamento temporário |
@@ -117,7 +124,7 @@ Isso evita selecionar a `.venv` do computador ao montar `backend/` em `/app`.
 
 O script `app/db/init.sql` cria as tabelas com `CREATE TABLE IF NOT EXISTS`,
 sem apagar registros existentes. Em um volume novo, o PostgreSQL executa esse
-script automaticamente. Em volumes criados nas práticas anteriores, aplique-o
+script automaticamente para livros e alunos; items é criado pelo Alembic na prática 7. Em volumes criados nas práticas anteriores, aplique-o
 uma vez após iniciar o banco:
 
 ```bash
@@ -165,7 +172,7 @@ chamada nos logs do container. `custom_header.py` adiciona
 `X-App-Version: 1.0` às respostas.
 
 ```bash
-docker compose logs backend
+docker compose logs api
 ```
 
 ## Testes automatizados
@@ -237,7 +244,7 @@ Além dos testes automatizados, a validação real pela API criou seis alunos,
 atualizou um deles e executou:
 
 ```bash
-docker compose restart backend db
+docker compose restart api db
 ```
 
 Após o reinício, os seis registros foram consultados com os mesmos IDs e dados,
@@ -278,7 +285,7 @@ recupera os mesmos dados persistidos. As rotas de livros e alunos continuam disp
 
 ### Executar
 
-Requisitos: Docker Compose, Node.js 22.22.2+ e npm para os testes locais.
+Requisitos: Docker Compose, Python 3.11+, Poetry, Node.js 22.22.2+ e npm para os testes locais.
 
 ```bash
 cp .env.example .env
@@ -305,10 +312,13 @@ execute `make up-build`, pois os arquivos são copiados para as imagens.
   desabilita o botão durante o envio, limpa somente no sucesso e mantém campos no erro.
 - Backend: route → service → repository → PostgreSQL. A restrição UNIQUE
   garante nomes únicos inclusive em requisições concorrentes.
-- Este repositório já usa asyncpg desde a prática 5: o recurso items mantém
-  essa tecnologia. As migrações SQL versionadas substituem o exemplo de
-  SQLAlchemy/Alembic das imagens; `make db-upgrade` aplica e `make db-current`
-  consulta a versão. O schema inicial também cria items em bancos novos.
+- SQLAlchemy faz o INSERT e a consulta de items, com model em `app/models/item.py`,
+  sessão em `app/database/session.py` e repository em `app/repositories/item.py`.
+- Alembic gerencia a criação da tabela: `make db-upgrade` executa `alembic upgrade head`;
+  `make db-current` executa `alembic current` e mostra `007_items (head)`.
+  A migração também preserva registros de volumes da versão anterior da prática 7.
+- Em banco vazio, é necessário aplicar a migração antes de cadastrar/listar items.
+  Livros e alunos mantêm a persistência asyncpg das práticas anteriores.
 
 ### CORS e rede Docker
 
@@ -318,7 +328,7 @@ e Content-Type, sem credenciais. O navegador faz preflight OPTIONS antes do POST
 CORS é uma regra do navegador e não substitui autenticação.
 
 O React executa no navegador: `VITE_API_URL` aponta para `http://localhost:8000`,
-não para o nome Docker `backend`. Dentro do backend, PostgreSQL é acessado
+não para o nome Docker `api`. Dentro do backend, PostgreSQL é acessado
 por `db:5432`. Variáveis VITE são públicas e não devem conter senhas.
 Se alterar as portas, ajuste também VITE_API_URL e CORS_ORIGINS no `.env`.
 Use a barra final `/items/` para evitar redirecionamentos 307.
@@ -326,6 +336,7 @@ Use a barra final `/items/` para evitar redirecionamentos 307.
 ### Testes e CI
 
 ```bash
+make install
 make frontend-install
 cd frontend
 npx playwright install chromium
@@ -333,7 +344,8 @@ cd ..
 make check-all
 ```
 
-`make check-all` verifica Biome, os testes Vitest, o build Vite, toda a suíte
+`make lint` executa Ruff; `make format` formata Python com Ruff.
+`make check-all` verifica lint e formatação Ruff, Biome, os testes Vitest, o build Vite, toda a suíte
 backend com PostgreSQL exclusivo e os testes E2E reais. `make test-docker`
 executa apenas o backend; `make frontend-test` executa Vitest.
 
@@ -346,7 +358,8 @@ O volume de desenvolvimento pertence a outro projeto e é preservado.
 
 Vitest cobre carregamento, estado vazio, dados da API, validação, envio JSON,
 erro de conexão e conflito 409. O backend testa CORS permitido/desconhecido,
-contrato, duplicidade e validação. E2E comprova cadastro, resposta com header
+contrato, duplicidade e validação de items com SQLite em memória, além de migrações
+Alembic e dos testes existentes de livros/alunos com PostgreSQL. E2E comprova cadastro, preflight OPTIONS e resposta com header
 CORS, persistência após reload, conflito e layout mobile. Nomes únicos permitem
 execução sem depender de registros prévios. A CI frontend executa `make e2e`
 e publica o relatório Playwright. As evidências estão em [img/pratica-7](img/pratica-7/README.md).
@@ -359,6 +372,10 @@ e publica o relatório Playwright. As evidências estão em [img/pratica-7](img/
 - [x] Dockerfile frontend e Compose com três serviços saudáveis.
 - [x] Testes unitários e de integração com fetch mockado.
 - [x] E2E real comprovando persistência após reload.
+- [x] Model e repository SQLAlchemy, migrações Alembic e versão `(head)`.
+- [x] Ruff pelos comandos lint e format; check-all verifica ambos.
 - [x] Comando check-all incluindo backend e E2E isolado.
+
+Instruções resumidas de Docker estão em [README-docker.md](README-docker.md).
 
 O histórico e as capturas da prática 6 continuam em [img/pratica-6](img/pratica-6/README.md).

@@ -48,6 +48,9 @@ jobs:
       - name: Instalar dependências
         run: poetry install --no-root --no-interaction --no-ansi
 
+      - name: Ruff lint e formatação
+        run: poetry run ruff check . && poetry run ruff format --check .
+
       - name: Executar testes unitários
         run: poetry run pytest tests/unit -v -m unit
 
