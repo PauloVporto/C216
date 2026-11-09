@@ -90,8 +90,25 @@ frontend-test:
 frontend-build:
 	cd frontend && npm run build
 
-frontend-e2e:
+frontend-e2e: frontend-test-e2e
+
+check-all: frontend-check frontend-test frontend-build test-docker e2e
+
+.PHONY: up-build db-upgrade db-current frontend-check frontend-test-e2e e2e
+up-build:
+	docker compose up --build -d --wait
+
+db-upgrade:
+	docker compose exec -T backend python -m app.db.migrate
+
+db-current:
+	docker compose exec -T db psql -U c216 -d c216 -c 'SELECT version FROM schema_migrations ORDER BY version;'
+
+frontend-check:
+	cd frontend && npm run check
+
+frontend-test-e2e:
 	cd frontend && npm run test:e2e
 
-check-all:
-	cd frontend && npm run lint && npm run format:check && npm run check && npm test && npm run build && npm run test:e2e
+e2e:
+	./scripts/e2e.sh

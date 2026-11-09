@@ -1,52 +1,72 @@
+import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 
-test("cadastra itens sem chamar o backend e perde os dados ao recarregar", async ({
+const uniqueName = (prefix) => `${prefix}-${randomUUID()}`;
+test("cadastra e persiste após recarregar; exibe conflito de nome", async ({
   page,
 }) => {
-  const externalRequests = [];
-  page.on("request", (request) => {
-    if (["fetch", "xhr"].includes(request.resourceType()))
-      externalRequests.push(request.url());
+  const name = uniqueName("Notebook");
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "Adicionar" })).toBeEnabled();
+  await page.getByLabel("Nome", { exact: true }).fill(name);
+  await page.getByLabel("Descrição", { exact: true }).fill("14 polegadas");
+  const post = page.waitForResponse(
+    (r) => r.url().endsWith("/items/") && r.request().method() === "POST",
+  );
+  await page.getByRole("button", { name: "Adicionar" }).click();
+  const response = await post;
+  expect(response.status()).toBe(201);
+  expect(response.headers()["access-control-allow-origin"]).toBe(
+    new URL(page.url()).origin,
+  );
+  const item = page.getByRole("listitem").filter({ hasText: name });
+  await expect(item).toContainText("14 polegadas");
+  await page.reload();
+  await expect(item).toBeVisible();
+  await page.getByLabel("Nome", { exact: true }).fill(name);
+  await page.getByRole("button", { name: "Adicionar" }).click();
+  await expect(page.getByRole("alert")).toHaveText(
+    "Já existe um item com esse nome",
+  );
+  await expect(page.getByLabel("Nome", { exact: true })).toHaveValue(name);
+  await page.screenshot({
+    path: "../img/pratica-7/persistencia.png",
+    fullPage: true,
+  });
+});
+test("valida nome obrigatório e limite antes de chamar a API", async ({
+  page,
+}) => {
+  let posts = 0;
+  page.on("request", (r) => {
+    if (r.method() === "POST") posts++;
   });
   await page.goto("/");
-  await expect(page.getByText("Nenhum item cadastrado.")).toBeVisible();
-  await page.getByLabel("Nome", { exact: true }).fill("Notebook");
-  await page.getByLabel("Descrição", { exact: true }).fill("14 polegadas");
-  await page.getByRole("button", { name: "Adicionar" }).click();
-  await expect(page.getByRole("listitem")).toContainText("Notebook");
-  await expect(page.getByRole("listitem")).toContainText("14 polegadas");
-  await expect(page.getByText("Nenhum item cadastrado.")).toBeHidden();
-  await expect(page.getByLabel("Nome", { exact: true })).toHaveValue("");
-  await page.getByLabel("Nome", { exact: true }).fill("Mouse");
-  await page.getByRole("button", { name: "Adicionar" }).click();
-  await expect(page.getByRole("listitem")).toHaveCount(2);
-  expect(externalRequests).toEqual([]);
-  await page.reload();
-  await expect(page.getByText("Nenhum item cadastrado.")).toBeVisible();
-});
-test("valida nome obrigatório e limite de 100 caracteres", async ({ page }) => {
-  await page.goto("/");
+  await expect(page.getByRole("button", { name: "Adicionar" })).toBeEnabled();
   await page.getByRole("button", { name: "Adicionar" }).click();
   await expect(page.getByRole("alert")).toHaveText("O nome é obrigatório.");
   await page.getByLabel("Nome", { exact: true }).fill("a".repeat(101));
   await page.getByRole("button", { name: "Adicionar" }).click();
   await expect(page.getByRole("alert")).toContainText("100 caracteres");
-  await expect(page.getByRole("listitem")).toHaveCount(0);
-  await page.getByLabel("Nome", { exact: true }).fill("a".repeat(100));
-  await page.getByRole("button", { name: "Adicionar" }).click();
-  await expect(page.getByRole("listitem")).toHaveCount(1);
+  expect(posts).toBe(0);
 });
-test("permite cadastro em tela de celular sem rolagem horizontal", async ({
-  page,
-}) => {
+test("cadastra no celular sem rolagem horizontal", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
+  const name = uniqueName("Mobile");
   await page.goto("/");
-  await page.getByLabel("Nome", { exact: true }).fill("Item mobile");
+  await expect(page.getByRole("button", { name: "Adicionar" })).toBeEnabled();
+  await page.getByLabel("Nome", { exact: true }).fill(name);
   await page.getByRole("button", { name: "Adicionar" }).click();
-  await expect(page.getByRole("listitem")).toContainText("Item mobile");
+  await expect(
+    page.getByRole("listitem").filter({ hasText: name }),
+  ).toBeVisible();
   expect(
     await page.evaluate(
-      () => document.documentElement.scrollWidth <= window.innerWidth,
+      () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  await page.screenshot({
+    path: "../img/pratica-7/itens-mobile.png",
+    fullPage: true,
+  });
 });

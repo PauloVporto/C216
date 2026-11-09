@@ -16,7 +16,7 @@ def client():
         conn = await asyncpg.connect(url)
         try:
             await conn.execute(Path("app/db/init.sql").read_text())
-            await conn.execute("TRUNCATE books, students RESTART IDENTITY")
+            await conn.execute("TRUNCATE books, students, items RESTART IDENTITY")
         finally:
             await conn.close()
     asyncio.run(prepare())

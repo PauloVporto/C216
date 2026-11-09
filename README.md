@@ -270,99 +270,95 @@ fornece o banco exclusivo usado pelos testes de integração.
 | Validar persistência dos dados | Teste com novas conexões e validação após reiniciar containers |
 | Salvar prints em `img/` | Capturas dos testes, logs da API e persistência |
 
-## Prática 6 — Frontend com React
+## Prática 7 — Integração Full-stack: CORS, E2E e Multicontêiner
 
-O diretório `frontend/` contém um projeto independente em JavaScript, com
-React, Vite, Tailwind CSS v4, Biome, Vitest, React Testing Library e Playwright.
-O backend e o Docker Compose da prática 5 permanecem como entregues.
+O React agora consome FastAPI e PostgreSQL. O cadastro faz POST `/items/`,
+recebe o ID do banco e atualiza a lista. Ao recarregar, o GET `/items/`
+recupera os mesmos dados persistidos. As rotas de livros e alunos continuam disponíveis.
 
 ### Executar
 
-Requisito: Node.js 22 LTS atualizado (22.22.2 ou superior) e npm.
+Requisitos: Docker Compose, Node.js 22.22.2+ e npm para os testes locais.
 
 ```bash
-cd frontend
-npm ci
-npm run dev
+cp .env.example .env
+make up-build
+make db-upgrade
+make db-current
+make ps
 ```
 
-Abra http://localhost:5173. Informe um nome obrigatório de até 100 caracteres
-e, opcionalmente, uma descrição. Ao adicionar, o item aparece na listagem e
-os campos são limpos. Espaços nas extremidades são removidos; entradas
-inválidas exibem mensagens associadas ao campo. A interface adapta-se ao celular.
-Os dados ficam somente no estado React e desaparecem ao recarregar a página.
-Não há chamadas à API nem persistência em localStorage.
+Interface: http://localhost:5173. Swagger: http://localhost:8000/docs.
+Todos os três serviços devem aparecer saudáveis. Após modificar código,
+execute `make up-build`, pois os arquivos são copiados para as imagens.
+`make down` encerra os serviços preservando o volume de desenvolvimento.
 
-### Organização
+### Contrato e organização
 
-```text
-frontend/
-├── src/
-│   ├── components/ItemForm.jsx  # formulário e mensagens de erro
-│   ├── components/ItemList.jsx  # listagem e estado vazio
-│   ├── App.jsx                 # estado e composição dos componentes
-│   ├── validation.js           # função pura de validação
-│   ├── main.jsx
-│   └── index.css               # importação do Tailwind v4
-├── tests/
-│   ├── setup.js
-│   ├── unit/                   # validação e componentes isolados
-│   ├── integration/            # cadastro integrado à listagem
-│   └── e2e/                    # navegação real com Chromium
-├── biome.json
-├── vite.config.js
-├── playwright.config.js
-└── package-lock.json
-```
+- `GET /items/`: 200 com lista de `{id, name, description}`.
+- `POST /items/`: 201; nome obrigatório de 1 a 100 caracteres após trim,
+  descrição opcional. Nome duplicado retorna 409 com a mensagem
+  "Já existe um item com esse nome"; corpo inválido retorna 422.
+- `frontend/src/services/items.js` centraliza fetch e usa `VITE_API_URL`.
+  Falhas de rede e respostas HTTP de erro viram mensagens acessíveis.
+- App mostra carregamento e erro de listagem. ItemForm aguarda o cadastro,
+  desabilita o botão durante o envio, limpa somente no sucesso e mantém campos no erro.
+- Backend: route → service → repository → PostgreSQL. A restrição UNIQUE
+  garante nomes únicos inclusive em requisições concorrentes.
+- Este repositório já usa asyncpg desde a prática 5: o recurso items mantém
+  essa tecnologia. As migrações SQL versionadas substituem o exemplo de
+  SQLAlchemy/Alembic das imagens; `make db-upgrade` aplica e `make db-current`
+  consulta a versão. O schema inicial também cria items em bancos novos.
 
-`App` guarda os itens com `useState`, envia `onAdd` ao formulário e `items`
-à lista. Cada item recebe `crypto.randomUUID()` para uma `key` estável.
-A função `addItem` concentra a futura integração HTTP da prática 7.
+### CORS e rede Docker
 
-### Qualidade e testes
+`CORS_ORIGINS` recebe origens explícitas separadas por vírgulas, por padrão
+http://localhost:5173 e http://127.0.0.1:5173. O middleware permite GET, POST
+e Content-Type, sem credenciais. O navegador faz preflight OPTIONS antes do POST JSON.
+CORS é uma regra do navegador e não substitui autenticação.
+
+O React executa no navegador: `VITE_API_URL` aponta para `http://localhost:8000`,
+não para o nome Docker `backend`. Dentro do backend, PostgreSQL é acessado
+por `db:5432`. Variáveis VITE são públicas e não devem conter senhas.
+Se alterar as portas, ajuste também VITE_API_URL e CORS_ORIGINS no `.env`.
+Use a barra final `/items/` para evitar redirecionamentos 307.
+
+### Testes e CI
 
 ```bash
+make frontend-install
 cd frontend
-npm ci
 npx playwright install chromium
-npm run lint
-npm run format:check
-npm run check
-npm test
-npm run build
-npm run test:e2e
+cd ..
+make check-all
 ```
 
-Para formatar, use `npm run format`; para acompanhar testes, `npm run test:watch`.
-Na raiz, `make frontend-install`, `make frontend-dev`, `make frontend-test`,
-`make frontend-build` e `make frontend-e2e` oferecem os mesmos comandos.
-`make check-all` executa o checklist de qualidade, testes e build do frontend
-(após instalar dependências e Chromium); os comandos existentes do backend continuam disponíveis.
+`make check-all` verifica Biome, os testes Vitest, o build Vite, toda a suíte
+backend com PostgreSQL exclusivo e os testes E2E reais. `make test-docker`
+executa apenas o backend; `make frontend-test` executa Vitest.
 
-O Vitest executa somente `tests/unit` e `tests/integration`, usando jsdom e
-limpeza do DOM após cada teste. O Playwright inicia o Vite automaticamente
-na porta 5173 e executa `tests/e2e` no Chromium. Os cenários verificam cadastro,
-validação, descrição opcional, limpeza dos campos, múltiplos itens, ausência de
-requisições fetch/XHR, perda do estado ao recarregar e layout em 375 pixels.
+`make e2e` sobe o projeto Compose `lab-e2e`, com API 8001, frontend 5174,
+volume PostgreSQL exclusivo, aplica migrações e roda Playwright sem mocks.
+Ao terminar, inclusive em falha, remove os serviços e o volume desse projeto.
+O volume de desenvolvimento pertence a outro projeto e é preservado.
+`make frontend-test-e2e` apenas executa Playwright contra uma stack já ativa
+(`E2E_BASE_URL`, padrão http://localhost:5173).
 
-### CI e entrega
+Vitest cobre carregamento, estado vazio, dados da API, validação, envio JSON,
+erro de conexão e conflito 409. O backend testa CORS permitido/desconhecido,
+contrato, duplicidade e validação. E2E comprova cadastro, resposta com header
+CORS, persistência após reload, conflito e layout mobile. Nomes únicos permitem
+execução sem depender de registros prévios. A CI frontend executa `make e2e`
+e publica o relatório Playwright. As evidências estão em [img/pratica-7](img/pratica-7/README.md).
 
-O workflow `.github/workflows/ci-frontend.yml` usa Node.js 22 e `npm ci`,
-verifica lint, formatação e imports, executa Vitest, build e Playwright,
-e disponibiliza o relatório E2E como artefato. Os dois workflows usam `paths`
-para disparar conforme os arquivos de frontend ou backend modificados.
-Checks obrigatórios com filtros podem ficar pendentes quando o workflow não dispara.
+### Checklist
 
-As evidências da prática 6 estão em [img/pratica-6/](img/pratica-6/README.md).
-A containerização do frontend e a integração full-stack ficam para a prática 7.
+- [x] Cliente HTTP com listItems e createItem usando fetch.
+- [x] Interface integrada à API com carregamento e erros.
+- [x] CORS com origens explícitas configuráveis.
+- [x] Dockerfile frontend e Compose com três serviços saudáveis.
+- [x] Testes unitários e de integração com fetch mockado.
+- [x] E2E real comprovando persistência após reload.
+- [x] Comando check-all incluindo backend e E2E isolado.
 
-| Requisito da Prática 6 | Implementação |
-|---|---|
-| Cadastro e listagem em memória | App, ItemForm e ItemList |
-| Nome obrigatório, máximo 100 caracteres | validateItem e mensagens acessíveis |
-| Descrição opcional | Textarea e listagem condicional |
-| Interface responsiva | Classes Tailwind v4 e teste de celular |
-| Lint e formatação | Biome, sem ESLint ou Prettier |
-| Testes em três níveis | Vitest + RTL e Playwright/Chromium |
-| CI e lockfile | ci-frontend.yml e package-lock.json versionado |
-| Sem chamadas ao backend | Estado local e verificação E2E de fetch/XHR |
+O histórico e as capturas da prática 6 continuam em [img/pratica-6](img/pratica-6/README.md).

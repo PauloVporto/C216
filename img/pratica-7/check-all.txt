@@ -1,0 +1,300 @@
+cd frontend && npm run check
+
+> c216-pratica-7@1.0.0 check
+> biome check .
+
+Checked 18 files in 49ms. No fixes applied.
+cd frontend && npm test
+
+> c216-pratica-7@1.0.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /Users/pauloporto/Documents/GitHub/C216/frontend
+
+
+ Test Files  4 passed (4)
+      Tests  19 passed (19)
+   Start at  19:46:03
+   Duration  1.35s (environment 68%, tests 16%, setup 12%, transform 2%, import 2%, worker 1%)
+
+cd frontend && npm run build
+
+> c216-pratica-7@1.0.0 build
+> vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 20 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.37 kB │ gzip:  0.27 kB
+dist/assets/index-EyCDbM0j.css   10.45 kB │ gzip:  2.74 kB
+dist/assets/index-Crg0Rls-.js   223.67 kB │ gzip: 70.11 kB
+
+✓ built in 87ms
+docker compose run --build --rm tests
+ Container c216-db-test-1 Running 
+ Image c216-tests Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 561B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 557B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.12-slim
+#3 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 177B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 4.29kB done
+#5 DONE 0.0s
+
+#6 [base 1/4] FROM docker.io/library/python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30
+#6 resolve docker.io/library/python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30 done
+#6 DONE 0.0s
+
+#7 [base 2/4] WORKDIR /app
+#7 CACHED
+
+#8 [base 3/4] RUN pip install --no-cache-dir poetry
+#8 CACHED
+
+#9 [tests 1/2] RUN poetry install --no-root --no-interaction --no-ansi
+#9 CACHED
+
+#10 [base 4/4] COPY pyproject.toml poetry.lock ./
+#10 CACHED
+
+#11 [tests 2/2] COPY . .
+#11 CACHED
+
+#12 exporting to image
+#12 exporting layers done
+#12 exporting manifest sha256:c0cf01bdad33404acf11932efff59068869c31c24f60d83bb672ff1c7980da7c done
+#12 exporting config sha256:397de3b014ec46aea4c0a07acc2541b0fda192d01b15cb3063d22e601ee3df99 done
+#12 exporting attestation manifest sha256:457452c2122fa33930dd72f298b9d5f3a1882be533693b48a209f71a6c649d66 done
+#12 exporting manifest list sha256:9804e3e2186ea4f42d9f5507ee14d521a8212c36866305e256bc4a644bdfa1f0 done
+#12 naming to docker.io/library/c216-tests:latest done
+#12 unpacking to docker.io/library/c216-tests:latest done
+#12 DONE 0.0s
+
+#13 resolving provenance for metadata file
+#13 DONE 0.0s
+ Image c216-tests Built 
+ Container c216-db-test-1 Waiting 
+ Container c216-db-test-1 Healthy 
+ Container c216-tests-run-c449d558f969 Creating 
+ Container c216-tests-run-c449d558f969 Created 
+============================= test session starts ==============================
+platform linux -- Python 3.12.16, pytest-9.1.1, pluggy-1.6.0 -- /usr/local/bin/python3.12
+cachedir: .pytest_cache
+rootdir: /app
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.14.2, platformdirs-4.14.5
+collecting ... collected 35 items
+
+tests/integration/test_books_api.py::test_create_book_returns_created PASSED [  2%]
+tests/integration/test_books_api.py::test_list_books_returns_collection PASSED [  5%]
+tests/integration/test_books_api.py::test_list_books_filters_by_query_parameter PASSED [  8%]
+tests/integration/test_books_api.py::test_get_book_by_path_parameter PASSED [ 11%]
+tests/integration/test_books_api.py::test_get_book_returns_not_found PASSED [ 14%]
+tests/integration/test_books_api.py::test_put_book_replaces_resource PASSED [ 17%]
+tests/integration/test_books_api.py::test_patch_book_updates_partial_fields PASSED [ 20%]
+tests/integration/test_books_api.py::test_delete_book_removes_resource PASSED [ 22%]
+tests/integration/test_books_api.py::test_create_book_validates_payload PASSED [ 25%]
+tests/integration/test_health.py::test_root_returns_success PASSED       [ 28%]
+tests/integration/test_health.py::test_health_returns_ok PASSED          [ 31%]
+tests/integration/test_health.py::test_public_routes_status_code[/-200] PASSED [ 34%]
+tests/integration/test_health.py::test_public_routes_status_code[/health-200] PASSED [ 37%]
+tests/integration/test_health.py::test_public_routes_status_code[/docs-200] PASSED [ 40%]
+tests/integration/test_health.py::test_public_routes_status_code[/openapi.json-200] PASSED [ 42%]
+tests/integration/test_health.py::test_unknown_route_returns_not_found PASSED [ 45%]
+tests/integration/test_health.py::test_health_does_not_accept_post PASSED [ 48%]
+tests/integration/test_items_api.py::test_items_persist_and_conflict PASSED [ 51%]
+tests/integration/test_items_api.py::test_invalid_name[] PASSED          [ 54%]
+tests/integration/test_items_api.py::test_invalid_name[   ] PASSED       [ 57%]
+tests/integration/test_items_api.py::test_invalid_name[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED [ 60%]
+tests/integration/test_students_api.py::test_students_crud_and_persistence PASSED [ 62%]
+tests/integration/test_students_api.py::test_missing_student[get] PASSED [ 65%]
+tests/integration/test_students_api.py::test_missing_student[put] PASSED [ 68%]
+tests/integration/test_students_api.py::test_missing_student[delete] PASSED [ 71%]
+tests/integration/test_students_api.py::test_validation_and_header PASSED [ 74%]
+tests/unit/test_book_service.py::test_create_uses_parameters PASSED      [ 77%]
+tests/unit/test_book_service.py::test_missing_book_returns_404 PASSED    [ 80%]
+tests/unit/test_book_service.py::test_missing_delete_returns_404 PASSED  [ 82%]
+tests/unit/test_book_service.py::test_list_filters_and_maps_rows PASSED  [ 85%]
+tests/unit/test_book_service.py::test_replace_updates_all_fields PASSED  [ 88%]
+tests/unit/test_book_service.py::test_patch_updates_only_sent_fields PASSED [ 91%]
+tests/unit/test_book_service.py::test_delete_existing_book PASSED        [ 94%]
+tests/unit/test_cors.py::test_cors_preflight[http://localhost:5173-True] PASSED [ 97%]
+tests/unit/test_cors.py::test_cors_preflight[https://unknown.example-False] PASSED [100%]
+
+============================== 35 passed in 0.48s ==============================
+./scripts/e2e.sh
+ Image lab-e2e-backend Building 
+ Image lab-e2e-frontend Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.05kB done
+#1 DONE 0.0s
+
+#2 [backend internal] load build definition from Dockerfile
+#2 transferring dockerfile: 557B done
+#2 DONE 0.0s
+
+#3 [frontend internal] load build definition from Dockerfile
+#3 transferring dockerfile: 213B done
+#3 DONE 0.0s
+
+#4 [frontend internal] load metadata for docker.io/library/node:22-alpine
+#4 DONE 0.0s
+
+#5 [backend internal] load metadata for docker.io/library/python:3.12-slim
+#5 DONE 0.0s
+
+#6 [backend internal] load .dockerignore
+#6 transferring context: 177B done
+#6 DONE 0.0s
+
+#7 [frontend internal] load .dockerignore
+#7 transferring context: 95B done
+#7 DONE 0.0s
+
+#8 [frontend internal] load build context
+#8 transferring context: 1.04kB done
+#8 DONE 0.0s
+
+#9 [backend internal] load build context
+#9 transferring context: 4.29kB done
+#9 DONE 0.0s
+
+#10 [backend base 1/4] FROM docker.io/library/python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30
+#10 resolve docker.io/library/python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30 0.0s done
+#10 DONE 0.0s
+
+#11 [frontend 1/5] FROM docker.io/library/node:22-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914
+#11 resolve docker.io/library/node:22-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914 0.0s done
+#11 DONE 0.0s
+
+#12 [frontend 3/5] COPY package*.json ./
+#12 CACHED
+
+#13 [frontend 4/5] RUN npm ci
+#13 CACHED
+
+#14 [frontend 2/5] WORKDIR /app
+#14 CACHED
+
+#15 [backend runtime 1/2] RUN poetry install --only main --no-root --no-interaction --no-ansi
+#15 CACHED
+
+#16 [backend base 4/4] COPY pyproject.toml poetry.lock ./
+#16 CACHED
+
+#17 [backend base 2/4] WORKDIR /app
+#17 CACHED
+
+#18 [backend base 3/4] RUN pip install --no-cache-dir poetry
+#18 CACHED
+
+#19 [frontend 5/5] COPY . .
+#19 CACHED
+
+#20 [backend runtime 2/2] COPY . .
+#20 CACHED
+
+#21 [frontend] exporting to image
+#21 exporting layers done
+#21 exporting manifest sha256:1921ff258f89cc660b57fc3aacb82d5049c025fc8c3bf3b2e743d14bcd61e3a4 done
+#21 exporting config sha256:e4ddc92f5eadde8edc2c9198375311b10ad133dbb7db79b61a8d0e49eff8a7b3 done
+#21 exporting attestation manifest sha256:cbee2b67e1efeda5b3c25cd010cdbd77b88ba73b4a9e7f8106d3467bf0e3b230 done
+#21 exporting manifest list sha256:5fce6cb114f7fc3d64f0880e5da247015f676d451e237a318bf8f4329273e549
+#21 exporting manifest list sha256:5fce6cb114f7fc3d64f0880e5da247015f676d451e237a318bf8f4329273e549 done
+#21 naming to docker.io/library/lab-e2e-frontend:latest done
+#21 unpacking to docker.io/library/lab-e2e-frontend:latest done
+#21 DONE 0.1s
+
+#22 [backend] exporting to image
+#22 exporting layers done
+#22 exporting manifest sha256:32e89596efbc799ca4bd43079bdc5bb815a026c2707d60223086638b96b52c5c done
+#22 exporting config sha256:1aba9dbbadd641e12a6ee0d37a4ca3adcecd2c95811f756e44b802e66d769e45 done
+#22 exporting attestation manifest sha256:9ca2aedcf4711fab5d38c159f37ad9680de8bab388eb8ff4909a671e7175be39 done
+#22 exporting manifest list sha256:b14c8f0391b173a937b3ff86c56896403683395f58f0804f07965cf486bcd6d4 done
+#22 naming to docker.io/library/lab-e2e-backend:latest done
+#22 unpacking to docker.io/library/lab-e2e-backend:latest done
+#22 DONE 0.1s
+
+#23 [frontend] resolving provenance for metadata file
+#23 DONE 0.0s
+
+#24 [backend] resolving provenance for metadata file
+#24 DONE 0.0s
+ Image lab-e2e-backend Built 
+ Image lab-e2e-frontend Built 
+ Network lab-e2e_default Creating 
+ Volume lab-e2e_postgres_data Creating 
+ Volume lab-e2e_postgres_data Creating 
+ Network lab-e2e_default Creating 
+ Volume lab-e2e_postgres_data Created 
+ Volume lab-e2e_postgres_data Created 
+ Network lab-e2e_default Created 
+ Network lab-e2e_default Created 
+ Container lab-e2e-db-1 Creating 
+ Container lab-e2e-db-1 Created 
+ Container lab-e2e-backend-1 Creating 
+ Container lab-e2e-backend-1 Created 
+ Container lab-e2e-frontend-1 Creating 
+ Container lab-e2e-frontend-1 Created 
+ Container lab-e2e-db-1 Starting 
+ Container lab-e2e-db-1 Started 
+ Container lab-e2e-db-1 Waiting 
+ Container lab-e2e-db-1 Healthy 
+ Container lab-e2e-backend-1 Starting 
+ Container lab-e2e-backend-1 Started 
+ Container lab-e2e-backend-1 Waiting 
+ Container lab-e2e-backend-1 Healthy 
+ Container lab-e2e-frontend-1 Starting 
+ Container lab-e2e-frontend-1 Started 
+ Container lab-e2e-backend-1 Waiting 
+ Container lab-e2e-frontend-1 Waiting 
+ Container lab-e2e-db-1 Waiting 
+ Container lab-e2e-backend-1 Healthy 
+ Container lab-e2e-db-1 Healthy 
+ Container lab-e2e-frontend-1 Healthy 
+007_items (head)
+
+> c216-pratica-7@1.0.0 test:e2e
+> playwright test
+
+
+Running 3 tests using 1 worker
+
+(node:98006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › tests/e2e/items.spec.js:5:1 › cadastra e persiste após recarregar; exibe conflito de nome (695ms)
+  ✓  2 [chromium] › tests/e2e/items.spec.js:37:1 › valida nome obrigatório e limite antes de chamar a API (237ms)
+  ✓  3 [chromium] › tests/e2e/items.spec.js:53:1 › cadastra no celular sem rolagem horizontal (315ms)
+
+  3 passed (1.8s)
+ Container lab-e2e-frontend-1 Stopping 
+ Container lab-e2e-frontend-1 Stopped 
+ Container lab-e2e-frontend-1 Removing 
+ Container lab-e2e-frontend-1 Removed 
+ Container lab-e2e-backend-1 Stopping 
+ Container lab-e2e-backend-1 Stopped 
+ Container lab-e2e-backend-1 Removing 
+ Container lab-e2e-backend-1 Removed 
+ Container lab-e2e-db-1 Stopping 
+ Container lab-e2e-db-1 Stopped 
+ Container lab-e2e-db-1 Removing 
+ Container lab-e2e-db-1 Removed 
+ Network lab-e2e_default Removing 
+ Volume lab-e2e_postgres_data Removing 
+ Volume lab-e2e_postgres_data Removed 
+ Network lab-e2e_default Removed 

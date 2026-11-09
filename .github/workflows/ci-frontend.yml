@@ -4,10 +4,18 @@ on:
   push:
     paths:
       - "frontend/**"
+      - "backend/**"
+      - "docker-compose.yml"
+      - "scripts/**"
+      - "Makefile"
       - ".github/workflows/ci-frontend.yml"
   pull_request:
     paths:
       - "frontend/**"
+      - "backend/**"
+      - "docker-compose.yml"
+      - "scripts/**"
+      - "Makefile"
       - ".github/workflows/ci-frontend.yml"
 
 permissions:
@@ -41,7 +49,8 @@ jobs:
       - name: Instalar Chromium
         run: npx playwright install --with-deps chromium
       - name: Testes E2E
-        run: npm run test:e2e
+        working-directory: .
+        run: make e2e
       - name: Salvar relatório E2E
         if: always()
         uses: actions/upload-artifact@v4

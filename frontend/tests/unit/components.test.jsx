@@ -44,3 +44,23 @@ it("envia dados normalizados e limpa os campos", async () => {
   expect(screen.getByLabelText("Nome")).toHaveValue("");
   expect(screen.getByLabelText("Descrição")).toHaveValue("");
 });
+it("desabilita envio enquanto aguarda e mantém campos até confirmar", async () => {
+  const user = userEvent.setup();
+  let resolve;
+  const onAdd = vi.fn(
+    () =>
+      new Promise((done) => {
+        resolve = done;
+      }),
+  );
+  render(<ItemForm onAdd={onAdd} />);
+  await user.type(screen.getByLabelText("Nome"), "Pendente");
+  await user.click(screen.getByRole("button", { name: "Adicionar" }));
+  expect(screen.getByRole("button", { name: "Salvando..." })).toBeDisabled();
+  expect(screen.getByLabelText("Nome")).toHaveValue("Pendente");
+  resolve();
+  expect(
+    await screen.findByRole("button", { name: "Adicionar" }),
+  ).toBeEnabled();
+  expect(screen.getByLabelText("Nome")).toHaveValue("");
+});
