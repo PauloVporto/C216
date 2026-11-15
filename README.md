@@ -165,7 +165,7 @@ Respostas: `201` para criação, `204` para exclusão, `404` para registro inexi
 
 Branch de entrega: `projeto-final`. A branch principal deste repositório se chama **`Main`** (M maiúsculo), por isso o PR usa `projeto-final → Main`. O PR deve permanecer aberto, sem merge.
 
-**Vídeo demonstrativo: pendente de gravação e publicação pelo aluno.** Substitua esta linha pelo link acessível antes da entrega. A narração própria do aluno é exigida no enunciado. O [roteiro de demonstração](docs/roteiro-video.md) organiza os comandos e fluxos para 5–10 minutos.
+**Vídeo demonstrativo: pendente de gravação e publicação pelo aluno.** Substitua esta linha pelo link acessível antes da entrega. A narração própria do aluno é exigida no enunciado. A duração recomendada é de 5–10 minutos, demonstrando a aplicação real em funcionamento.
 
 Até **28/11/2026**, envie na atividade do Teams o link deste repositório, do PR aberto com os Checks aprovados e do vídeo. Confirme que os avaliadores conseguem acessar todos os links.
 

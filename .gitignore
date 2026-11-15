@@ -13,3 +13,4 @@ test-results/
 playwright-report/
 *.db
 .DS_Store
+/docs/roteiro-video.md
