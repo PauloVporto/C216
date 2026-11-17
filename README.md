@@ -1,21 +1,39 @@
-# Entrelinhas · Biblioteca
+# LocaPlay · Aluguel de jogos
 
 Projeto Final de C216 — Sistemas Distribuídos, 2026.2.
 
-Aplicação para pequenas bibliotecas acompanharem seu acervo e a circulação dos livros. Integra livros, leitores e empréstimos, com controle de exemplares e histórico de devoluções.
+Aplicação para locadoras de jogos físicos organizarem o catálogo por plataforma, cadastrarem clientes e controlarem locações, disponibilidade e valores de diárias. O fluxo integra React, FastAPI e PostgreSQL: do cadastro do jogo ao fechamento da locação na devolução.
 
 ## Funcionalidades
 
-- Livros: criar, consultar, buscar por título/autor/categoria, filtrar, editar e excluir.
-- Leitores: cadastro, consulta, busca, edição e exclusão; e-mail único, normalizado em minúsculas.
-- Empréstimos: escolher livro disponível, leitor e prazo; registrar devolução; consultar histórico e filtrar por status.
-- Disponibilidade calculada pelo total de exemplares menos os empréstimos ativos.
-- Prazo vencido identifica automaticamente empréstimos em atraso. A devolução libera o exemplar.
-- Bloqueio de empréstimos duplicados para o mesmo leitor/livro e de empréstimos sem exemplares.
-- Bloqueio de redução de exemplares abaixo dos empréstimos ativos.
-- Livros e leitores com histórico não podem ser excluídos, mesmo após devolução.
-- Painel com totais do acervo, exemplares disponíveis, empréstimos ativos e leitores.
-- Interface responsiva com estados de carregamento, vazio, sucesso e erro; confirmação de exclusão e devolução.
+- Jogos: criar, consultar, buscar por título/plataforma/gênero, filtrar por gênero, editar e excluir.
+- Catálogo com plataforma, gênero, número de cópias e valor da diária em reais. Plataformas aceitas: PS5, PS4, Xbox Series, Xbox One, Nintendo Switch e PC.
+- Clientes: cadastro, consulta, busca por nome/e-mail, edição e exclusão; e-mail único e normalizado.
+- Locações: selecionar jogo disponível, cliente e data de devolução; consultar estimativa antes de registrar; devolver e consultar histórico e total.
+- Disponibilidade calculada por jogo/plataforma: cópias cadastradas menos locações ainda abertas.
+- Diária contratada preservada na locação: mudar o preço do catálogo afeta apenas novas locações.
+- Total calculado em centavos, com período reservado, mínimo de uma diária e acréscimo por dias de atraso.
+- Devolução libera a cópia e persiste o total final. Locações encerradas deixam de acumular diárias.
+- Bloqueio de locação duplicada do mesmo jogo para o mesmo cliente e de locação sem cópias disponíveis.
+- Bloqueio de redução do estoque abaixo das locações ativas e de exclusão de cadastros com histórico.
+- Indicadores de jogos, cópias disponíveis, locações ativas e soma dos valores das locações encerradas.
+- Interface responsiva com carregamento, estados vazios, sucesso e erros, filtros e confirmações.
+
+## Regras de cobrança
+
+As datas usam o fuso `America/Sao_Paulo`. A diária usa **dias corridos**, sem fracionamento por hora:
+
+```text
+dias reservados = máximo entre 1 e (devolução prevista − início)
+dias em atraso = máximo entre 0 e (data de devolução − devolução prevista)
+total = (dias reservados + dias em atraso) × diária contratada
+```
+
+O período reservado é cobrado integralmente mesmo na devolução antecipada. Na lista de locações abertas, a data atual substitui a data de devolução para mostrar o total até hoje. Ao devolver, o servidor calcula e grava o total definitivo.
+
+Exemplo: diária de **R$ 12,99**, retirada em **17/11**, prazo em **20/11**: três diárias, **R$ 38,97**. Devolução em **22/11** acrescenta dois dias: cinco diárias, **R$ 64,95**. Alterar depois o catálogo para R$ 20,00 não muda a diária desse contrato.
+
+Os valores são calculados para controle da locadora. Não há processamento de pagamentos, confirmação de recebimento nem emissão fiscal. A soma de locações encerradas não representa recebimentos bancários confirmados.
 
 ## Arquitetura e tecnologias
 
@@ -31,26 +49,26 @@ flowchart LR
 
 Backend: Python 3.12, Poetry, FastAPI, Pydantic, SQLAlchemy, asyncpg, Alembic, Pytest e Ruff. Frontend: JavaScript, React, Vite, Biome, Vitest, Testing Library e Playwright. Infraestrutura: Docker Compose e GitHub Actions.
 
-O navegador utiliza `/api` na mesma origem; Nginx encaminha ao serviço `api`. No desenvolvimento, o proxy do Vite faz esse encaminhamento. A API também permite acesso direto das origens configuradas em `CORS_ORIGINS`.
+O navegador acessa `/api` na mesma origem; Nginx encaminha as requisições ao serviço `api`. No desenvolvimento local, o proxy do Vite faz esse encaminhamento. O acesso direto à API respeita `CORS_ORIGINS`.
 
-A criação de empréstimos bloqueia a linha do livro (`SELECT FOR UPDATE`) dentro da transação PostgreSQL. Isso serializa a disputa pelo último exemplar. Restrições de integridade e índice único parcial reforçam as regras no banco. As migrações executam antes de iniciar a API; o healthcheck consulta o banco. Os dados ficam em volume nomeado.
+Cada requisição de escrita usa uma transação SQLAlchemy. A locação bloqueia a linha do jogo (`SELECT FOR UPDATE`) antes de conferir o estoque, evitando que dois clientes aluguem a mesma última cópia. Um índice único parcial impede contratos ativos duplicados. As migrações executam antes de iniciar a API; o healthcheck consulta o banco e os dados ficam em volume nomeado.
 
 ```text
 backend/
   app/
     core/          configuração por ambiente
     database/      engine e sessão transacional
-    models/        entidades e restrições SQLAlchemy
-    schemas/       entrada e saída Pydantic
+    models/        jogos, clientes e locações; modelos legados preservados
+    schemas/       contratos e validação de entrada/saída
     repositories/  consultas e persistência
-    services/      regras de circulação
-    routes/        endpoints HTTP
-  alembic/         migrações versionadas
+    services/      estoque, preço contratado, prazos e fechamento
+    routes/        endpoints REST
+  alembic/         migrações versionadas 001 e 002
   tests/           regras, endpoints, migrações e concorrência
 frontend/
-  src/             interface React, modal e cliente HTTP
-  tests/           Vitest/Testing Library e E2E Playwright
-scripts/e2e.sh     ambiente integrado isolado e limpeza
+  src/             catálogo, clientes, locações, modal e cliente HTTP
+  tests/           componentes, orçamento e E2E Playwright
+scripts/e2e.sh     stack isolada para testes e limpeza
 .github/workflows/ci.yml
 ```
 
@@ -70,42 +88,42 @@ make up
 - Swagger/OpenAPI: http://localhost:8000/docs
 - Saúde da API/banco: http://localhost:8000/health
 
-A primeira execução instala dependências, constrói as imagens, inicia PostgreSQL, aplica a migração e inicia API e frontend, nessa ordem. O acervo começa vazio: adicione livros e leitores pela interface antes de registrar um empréstimo.
+A primeira execução instala dependências, constrói imagens, inicia PostgreSQL, aplica as migrações e inicia API e frontend. O catálogo começa vazio. Cadastre um jogo com plataforma, gênero, cópias e diária; depois cadastre um cliente e registre uma locação.
 
 Se a porta 5173 estiver ocupada, use `FRONTEND_PORT=5174 make up` e acesse http://localhost:5174. O proxy continua funcionando. Para acesso direto à API dessa origem, adicione-a em `CORS_ORIGINS`.
 
 ```bash
 make status          # saúde dos serviços
 make logs            # acompanhar logs (Ctrl+C para sair)
-make migrate         # reaplicar upgrade head, sem apagar dados
-make db-shell        # psql; use \dt para listar tabelas e \q para sair
-make down            # parar contêineres, preservando o volume
+make migrate         # alembic upgrade head, sem apagar os cadastros
+make db-shell        # psql; \dt lista tabelas, \q sai
+make down            # parar os contêineres, preservando o volume
 make up              # iniciar novamente com os mesmos dados
 ```
 
-Para comprovar persistência: cadastre um livro, recarregue a página e execute `make down` / `make up`. O livro continua no acervo. Não remova o volume `postgres_data` se quiser preservar os cadastros.
+Para comprovar persistência, cadastre um jogo, recarregue a página e execute `make down` / `make up`. O cadastro continua disponível. Não remova o volume `postgres_data` se quiser preservar os dados.
 
 ## Variáveis de ambiente
 
-Use `.env.example` como referência. `.env` não é versionado. As credenciais de exemplo são somente de desenvolvimento local.
+Use `.env.example` como referência. `.env` não é versionado. As credenciais de exemplo servem somente ao desenvolvimento local.
 
 | Variável | Padrão / uso |
 | --- | --- |
-| `POSTGRES_DB` | `biblioteca` |
-| `POSTGRES_USER` | `biblioteca` |
-| `POSTGRES_PASSWORD` | `biblioteca`; altere em ambientes compartilhados |
+| `POSTGRES_DB` | `locaplay` |
+| `POSTGRES_USER` | `locaplay` |
+| `POSTGRES_PASSWORD` | `locaplay`; altere em ambientes compartilhados |
 | `DB_PORT` | `5432`, publicado apenas em `127.0.0.1` |
 | `API_PORT` | `8000` no host |
 | `FRONTEND_PORT` | `5173` no host |
-| `DATABASE_URL` | conexão async SQLAlchemy para execução local; Compose monta a URL com host `db` |
+| `DATABASE_URL` | conexão async SQLAlchemy local; Compose usa o hostname interno `db` |
 | `CORS_ORIGINS` | origens permitidas separadas por vírgulas, sem barra final |
-| `VITE_API_URL` | opcional, endereço público da API; vazio usa proxy `/api` |
+| `VITE_API_URL` | opcional no build Vite; vazio utiliza o proxy `/api` |
 | `API_PROXY_TARGET` | somente Vite: `http://localhost:8000` por padrão |
 | `TEST_DATABASE_URL` | banco exclusivo dos testes; ausente utiliza SQLite temporário |
 
-`VITE_API_URL` é configuração de build do Vite para desenvolvimento local. No Docker, o frontend usa o proxy Nginx sem necessidade de expor o hostname interno ao navegador. Não coloque segredos em variáveis `VITE_*`.
+Não coloque segredos em variáveis `VITE_*`. O frontend Docker usa o proxy Nginx e não precisa conhecer o endereço interno do banco ou da API.
 
-## Desenvolvimento local
+## Desenvolvimento local e migrações
 
 ```bash
 make install
@@ -119,56 +137,62 @@ cd frontend
 npm run dev
 ```
 
-O backend carrega o `.env` da raiz via python-dotenv. Alterações no modelo exigem migração versionada:
+O backend carrega o `.env` da raiz via python-dotenv. Mudanças de modelos exigem migração:
 
 ```bash
 cd backend
 poetry run alembic revision --autogenerate -m "descreve alteracao"
-# Revise o arquivo gerado antes de aplicar.
+# Revise a migração gerada antes de aplicar.
 poetry run alembic upgrade head
 ```
+
+O projeto evoluiu de biblioteca para locadora. A migração `001_library` permanece no histórico; `002_game_rentals` cria `games`, `customers` e `rentals` sem converter livros em jogos nem apagar registros antigos. As tabelas antigas são preservadas e não são expostas pela API ou interface atuais. O teste de migração comprova a preservação no upgrade e no downgrade da revisão 002.
+
+O Compose atual usa o projeto `c216-locaplay` e seu próprio volume. Volumes da versão anterior não são removidos. Ao reaproveitar explicitamente um banco antigo via `DATABASE_URL`, execute `alembic upgrade head` antes de iniciar a API nova.
 
 ## Testes e qualidade
 
 ```bash
 make install
 make lint             # Ruff check/format e Biome check
-make test             # Pytest em PostgreSQL isolado + Vitest no host
+make test             # Pytest/PostgreSQL e Vitest
 make check            # lint, testes e build de produção
 cd frontend && npx playwright install chromium && cd ..
 make e2e              # navegador + frontend + API + PostgreSQL reais
 ```
 
-`make test-backend` usa o serviço `db-test`, sem acessar o banco da aplicação. Os testes limpam esse banco dedicado entre casos. `make test-frontend` executa Vitest/Testing Library. Para validar sem Docker: `cd backend && poetry run pytest -q`; usa SQLite temporário e pula apenas o teste que exige bloqueios de PostgreSQL.
+`make test-backend` usa o banco dedicado `db-test`; os testes limpam esse banco entre cenários. `make test-frontend` executa Vitest/Testing Library. Sem Docker: `cd backend && poetry run pytest -q` usa SQLite temporário e pula apenas o teste que depende dos bloqueios PostgreSQL.
 
-O E2E cria o projeto Compose `c216-entrelinhas-e2e`, com banco/volume próprios, usando portas 5180 (frontend), 8180 (API) e 55433 (banco). Ao terminar, remove apenas os contêineres e volumes desse projeto. Não usa o acervo de desenvolvimento. Caso necessário, ajuste `E2E_FRONTEND_PORT`, `E2E_API_PORT` e `E2E_DB_PORT`.
+O E2E usa o projeto `c216-locaplay-e2e`, com banco e volume próprios e portas 5180 (frontend), 8180 (API) e 55433 (banco). Remove somente esses recursos ao terminar. É possível ajustar `E2E_FRONTEND_PORT`, `E2E_API_PORT` e `E2E_DB_PORT`.
 
-Cobertura funcional: regras de estoque/prazos/status, validação, CRUD e erros HTTP, CORS, upgrade/downgrade de migrações, disputa simultânea pelo último exemplar; formulários, busca/filtros e erros no React; dois E2E com persistência após reload, edição, exclusão, empréstimo e devolução.
+Os testes cobrem estoque, prazos, validação, CRUD, CORS, migrações e concorrência; diária mínima, reserva integral, atraso, preço contratado e total encerrado; formulários, filtros e orçamento no React; dois E2E com persistência, CRUD, locação, alteração posterior do preço e devolução.
 
-O workflow **Projeto final** executa três jobs: backend com PostgreSQL, frontend com lint/testes/build e E2E com Compose. Dispara em push para `projeto-final`, `main` ou `Main`, e em PR para `main`/`Main`, sem filtros que omitam alguma parte da aplicação. Traces do Playwright são anexados em caso de falha.
+O workflow **Projeto final** executa os jobs `backend`, `frontend` e `e2e`, em pushes para `projeto-final`, `main` ou `Main` e em PRs para `main`/`Main`, sem filtros de arquivos. Traces do Playwright são anexados em caso de falha.
 
 ## API
 
 | Método | Rota | Operação |
 | --- | --- | --- |
-| GET / POST | `/api/books` | listar / criar livros |
-| PUT / DELETE | `/api/books/{id}` | editar / excluir livro |
-| GET / POST | `/api/readers` | listar / criar leitores |
-| PUT / DELETE | `/api/readers/{id}` | editar / excluir leitor |
-| GET / POST | `/api/loans` | histórico / novo empréstimo |
-| POST | `/api/loans/{id}/return` | devolver exemplar |
-| GET | `/health` | verificar conexão com banco |
+| GET / POST | `/api/games` | listar / cadastrar jogos |
+| PUT / DELETE | `/api/games/{id}` | editar / excluir jogo |
+| GET / POST | `/api/customers` | listar / cadastrar clientes |
+| PUT / DELETE | `/api/customers/{id}` | editar / excluir cliente |
+| GET / POST | `/api/rentals` | histórico e valores / nova locação |
+| POST | `/api/rentals/{id}/return` | registrar devolução e fixar total |
+| GET | `/health` | verificar acesso ao banco |
 
-Respostas: `201` para criação, `204` para exclusão, `404` para registro inexistente, `409` para conflito de negócio/integridade e `422` para dados inválidos. Os contratos completos estão em `/docs`.
+Preços da API são inteiros em centavos: `daily_rate_cents`, `estimated_total_cents` e `total_cents`. A interface converte entrada e apresentação para reais. O cliente não envia o total nem a diária contratada ao abrir uma locação: esses valores vêm do servidor.
+
+Respostas: `201` para criação, `204` para exclusão, `404` para registro inexistente, `409` para conflito de negócio/integridade e `422` para entrada inválida. Contratos completos em `/docs`.
 
 ## Entrega e vídeo
 
-Branch de entrega: `projeto-final`. A branch principal deste repositório se chama **`Main`** (M maiúsculo), por isso o PR usa `projeto-final → Main`. O PR deve permanecer aberto, sem merge.
+Branch: `projeto-final`. A branch principal existente é **`Main`**, com M maiúsculo. O [PR final #9](https://github.com/PauloVporto/C216/pull/9) deve permanecer aberto, sem merge, com os Checks aprovados.
 
-**Vídeo demonstrativo: pendente de gravação e publicação pelo aluno.** Substitua esta linha pelo link acessível antes da entrega. A narração própria do aluno é exigida no enunciado. A duração recomendada é de 5–10 minutos, demonstrando a aplicação real em funcionamento.
+**Vídeo demonstrativo: pendente de gravação e publicação pelo aluno.** Substitua esta linha pelo link acessível antes da entrega. O vídeo deve ter a narração do próprio aluno e apresentar a aplicação real em funcionamento, incluindo catálogo, clientes, locação, preço contratado, devolução, persistência, Docker e testes. Duração recomendada: 5–10 minutos.
 
-Até **28/11/2026**, envie na atividade do Teams o link deste repositório, do PR aberto com os Checks aprovados e do vídeo. Confirme que os avaliadores conseguem acessar todos os links.
+Até **28/11/2026**, envie na atividade do Teams os links do repositório, do PR e do vídeo. Confira o acesso dos avaliadores.
 
-A implementação foi desenvolvida com apoio de IA. O aluno deve revisar o código, executar os comandos, compreender as regras e a arquitetura, realizar sua própria demonstração e concluir o vídeo e a entrega. Consulte o [guia de revisão](docs/revisao.md).
+A implementação contou com apoio de IA. O aluno deve revisar o código, executar os comandos, compreender as regras e realizar a própria demonstração. O [guia de revisão](docs/revisao.md) indica os pontos técnicos a estudar.
 
-Limites do escopo: aplicação acadêmica sem autenticação; operações disponíveis a quem tiver acesso à API. O histórico de empréstimos é preservado e não possui exclusão pela interface. Não há publicação em nuvem: a entrega usa a stack Docker/PostgreSQL pedida na disciplina.
+Limites: aplicação acadêmica sem autenticação; a API fica disponível a quem tiver acesso à rede. O histórico de locações não tem exclusão pela interface. Não há pagamento online nem deploy em nuvem; a execução integrada utiliza Docker e PostgreSQL.
