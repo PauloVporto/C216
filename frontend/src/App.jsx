@@ -203,7 +203,7 @@ export default function App() {
           onClick={() => changeTab("games")}
         >
           <span className="brand-icon" aria-hidden="true">
-            ▥
+            ▶
           </span>
           <span>
             locaplay<small>ALUGUEL DE JOGOS</small>
@@ -227,7 +227,7 @@ export default function App() {
         <div className="sidebar-note">
           <span aria-hidden="true">✳</span>
           <p>
-            Grandes jogos
+            Grandes jogos,
             <br />
             novas partidas.
           </p>
@@ -290,7 +290,7 @@ export default function App() {
                 caption: `${overdue} ${overdue === 1 ? "devolução em atraso" : "devoluções em atraso"}`,
               },
               {
-                name: "Locações encerradas",
+                name: "Total das devoluções",
                 value: formatMoney(
                   data.rentals
                     .filter((rental) => rental.status === "returned")

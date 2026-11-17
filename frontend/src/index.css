@@ -441,7 +441,7 @@ h2 {
 .game-body {
   padding: 17px;
 }
-.category {
+.genre {
   font-size: 9px;
   letter-spacing: 0.3px;
   color: #7c8565;
@@ -987,4 +987,19 @@ dialog .rental-quote > small {
 .game-body .daily-price small {
   font-size: 9px;
   font-weight: 400;
+}
+
+@media (max-width: 480px) {
+  nav button {
+    min-width: 0;
+    gap: 6px;
+    padding: 12px 8px;
+    font-size: 10px;
+  }
+  nav button > span:first-child {
+    font-size: 19px;
+  }
+  .nav-count {
+    display: none;
+  }
 }
