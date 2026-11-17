@@ -2,11 +2,11 @@ SHELL := /bin/bash
 POETRY ?= poetry
 COMPOSE ?= docker compose
 .DEFAULT_GOAL := help
-.PHONY: help install up down logs status migrate test test-backend test-frontend lint format check db-shell
+.PHONY: help install up down logs status migrate test test-backend test-frontend lint format check e2e db-shell
 help:
 	@echo 'install: dependências locais | up/down: iniciar/parar Docker | logs/status: diagnóstico'
 	@echo 'test: Pytest/PostgreSQL + Vitest | lint/format: Ruff e Biome | check: lint + testes + build'
-	@echo 'migrate: Alembic upgrade head | db-shell: psql'
+	@echo 'migrate: Alembic upgrade head | e2e: fluxo real isolado | db-shell: psql'
 install:
 	cd backend && $(POETRY) install --no-root
 	cd frontend && npm ci
@@ -36,3 +36,5 @@ format:
 	cd frontend && npx biome check --write .
 check: lint test
 	cd frontend && npm run build
+e2e:
+	./scripts/e2e.sh
