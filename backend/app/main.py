@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.core.config import CORS_ORIGINS
 from app.database.session import engine, get_session
+from app.routes.library import router
 
 
 @asynccontextmanager
@@ -24,6 +25,7 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
+app.include_router(router)
 
 
 @app.exception_handler(IntegrityError)
