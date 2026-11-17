@@ -6,9 +6,9 @@ describe("HTTP client", () => {
   it("sends JSON and handles a 204 deletion", async () => {
     const fetch = vi.fn().mockResolvedValue({ ok: true, status: 204 });
     vi.stubGlobal("fetch", fetch);
-    expect(await request("/books/1", { method: "DELETE" })).toBeNull();
+    expect(await request("/games/1", { method: "DELETE" })).toBeNull();
     expect(fetch).toHaveBeenCalledWith(
-      "/api/books/1",
+      "/api/games/1",
       expect.objectContaining({ method: "DELETE" }),
     );
   });
@@ -17,12 +17,12 @@ describe("HTTP client", () => {
       "fetch",
       vi.fn().mockResolvedValue({
         ok: false,
-        json: async () => ({ detail: "Não há exemplares disponíveis." }),
+        json: async () => ({ detail: "Não há cópias disponíveis." }),
       }),
     );
     await expect(
-      request("/loans", { method: "POST", body: {} }),
-    ).rejects.toThrow("Não há exemplares disponíveis.");
+      request("/rentals", { method: "POST", body: {} }),
+    ).rejects.toThrow("Não há cópias disponíveis.");
   });
   it("handles validation and network errors", async () => {
     vi.stubGlobal(
@@ -31,12 +31,12 @@ describe("HTTP client", () => {
         .fn()
         .mockResolvedValue({ ok: false, json: async () => ({ detail: [] }) }),
     );
-    await expect(request("/books")).rejects.toThrow("Confira os dados");
+    await expect(request("/games")).rejects.toThrow("Confira os dados");
     vi.stubGlobal(
       "fetch",
       vi.fn().mockRejectedValue(new TypeError("Failed to fetch")),
     );
-    await expect(request("/books")).rejects.toThrow(
+    await expect(request("/games")).rejects.toThrow(
       "Não foi possível conectar",
     );
   });

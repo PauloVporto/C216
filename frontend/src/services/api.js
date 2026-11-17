@@ -11,7 +11,7 @@ export async function request(path, options = {}) {
     });
   } catch {
     throw new Error(
-      "Não foi possível conectar à biblioteca. Verifique sua conexão e tente novamente.",
+      "Não foi possível conectar à locadora. Verifique sua conexão e tente novamente.",
     );
   }
   if (!response.ok) {
