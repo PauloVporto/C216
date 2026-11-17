@@ -16,15 +16,15 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: biblioteca_test
+          POSTGRES_DB: locaplay_test
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
         ports: [5432:5432]
         options: >-
-          --health-cmd "pg_isready -U test -d biblioteca_test"
+          --health-cmd "pg_isready -U test -d locaplay_test"
           --health-interval 2s --health-timeout 5s --health-retries 30
     env:
-      TEST_DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/biblioteca_test
+      TEST_DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/locaplay_test
     defaults:
       run:
         working-directory: backend

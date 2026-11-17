@@ -1,11 +1,11 @@
-name: c216-entrelinhas
+name: c216-locaplay
 services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-biblioteca}
-      POSTGRES_USER: ${POSTGRES_USER:-biblioteca}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-biblioteca}
+      POSTGRES_DB: ${POSTGRES_DB:-locaplay}
+      POSTGRES_USER: ${POSTGRES_USER:-locaplay}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-locaplay}
     ports:
       - "127.0.0.1:${DB_PORT:-5432}:5432"
     volumes:
@@ -20,7 +20,7 @@ services:
       context: ./backend
       target: runtime
     environment:
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-biblioteca}:${POSTGRES_PASSWORD:-biblioteca}@db:5432/${POSTGRES_DB:-biblioteca}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-locaplay}:${POSTGRES_PASSWORD:-locaplay}@db:5432/${POSTGRES_DB:-locaplay}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
     ports:
       - "${API_PORT:-8000}:8000"
@@ -48,13 +48,13 @@ services:
     image: postgres:16-alpine
     profiles: [test]
     environment:
-      POSTGRES_DB: biblioteca_test
+      POSTGRES_DB: locaplay_test
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
     tmpfs:
       - /var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U test -d biblioteca_test"]
+      test: ["CMD-SHELL", "pg_isready -U test -d locaplay_test"]
       interval: 2s
       timeout: 5s
       retries: 30
@@ -64,7 +64,7 @@ services:
       target: tests
     profiles: [test]
     environment:
-      TEST_DATABASE_URL: postgresql+asyncpg://test:test@db-test:5432/biblioteca_test
+      TEST_DATABASE_URL: postgresql+asyncpg://test:test@db-test:5432/locaplay_test
     depends_on:
       db-test:
         condition: service_healthy
