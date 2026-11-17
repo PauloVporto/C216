@@ -1,3 +1,5 @@
+"""Legacy tables retained to preserve data created before the game-rental domain."""
+
 from datetime import date, datetime
 
 from sqlalchemy import (

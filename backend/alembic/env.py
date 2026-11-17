@@ -5,7 +5,7 @@ from sqlalchemy.pool import NullPool
 
 from alembic import context
 from app.core.config import DATABASE_URL
-from app.models.library import Base
+from app.models import Base
 
 config = context.config
 url = config.get_main_option("sqlalchemy.url") or DATABASE_URL
