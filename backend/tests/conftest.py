@@ -12,7 +12,7 @@ from sqlalchemy.pool import NullPool
 
 from app.database.session import get_session
 from app.main import app
-from app.models.library import Book, Loan, Reader
+from app.models.rentals import Customer, Game, Rental
 
 
 @pytest.fixture()
@@ -38,7 +38,7 @@ def client(tmp_path):
 
     async def clear():
         async with sessions.begin() as session:
-            for model in [Loan, Reader, Book]:
+            for model in [Rental, Customer, Game]:
                 await session.execute(delete(model))
 
     asyncio.run(clear())

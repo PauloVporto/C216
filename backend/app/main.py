@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.core.config import CORS_ORIGINS
 from app.database.session import engine, get_session
-from app.routes.library import router
+from app.routes.rentals import router
 
 
 @asynccontextmanager
@@ -17,7 +17,7 @@ async def lifespan(app):
     await engine.dispose()
 
 
-app = FastAPI(title="Entrelinhas · Biblioteca", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="LocaPlay · Aluguel de jogos", version="2.0.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,

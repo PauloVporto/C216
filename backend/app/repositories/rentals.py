@@ -1,10 +1,10 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.library import Book, Loan, Reader
+from app.models.rentals import Customer, Game, Rental
 
 
-class LibraryRepository:
+class RentalRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
@@ -26,58 +26,58 @@ class LibraryRepository:
         await self.session.delete(model)
         await self.session.flush()
 
-    async def active_count(self, book_id):
+    async def active_count(self, game_id):
         return await self.session.scalar(
             select(func.count())
-            .select_from(Loan)
-            .where(Loan.book_id == book_id, Loan.returned_at.is_(None))
+            .select_from(Rental)
+            .where(Rental.game_id == game_id, Rental.returned_at.is_(None))
         )
 
     async def has_history(self, field, identifier):
         return bool(
             await self.session.scalar(
-                select(Loan.id).where(field == identifier).limit(1)
+                select(Rental.id).where(field == identifier).limit(1)
             )
         )
 
     async def email_exists(self, email, excluding=None):
-        query = select(Reader.id).where(Reader.email == email)
+        query = select(Customer.id).where(Customer.email == email)
         if excluding is not None:
-            query = query.where(Reader.id != excluding)
+            query = query.where(Customer.id != excluding)
         return bool(await self.session.scalar(query))
 
-    async def duplicate_loan(self, book_id, reader_id):
+    async def duplicate_rental(self, game_id, customer_id):
         return bool(
             await self.session.scalar(
-                select(Loan.id).where(
-                    Loan.book_id == book_id,
-                    Loan.reader_id == reader_id,
-                    Loan.returned_at.is_(None),
+                select(Rental.id).where(
+                    Rental.game_id == game_id,
+                    Rental.customer_id == customer_id,
+                    Rental.returned_at.is_(None),
                 )
             )
         )
 
-    async def books_with_counts(self):
+    async def games_with_counts(self):
         active = (
-            select(Loan.book_id, func.count().label("count"))
-            .where(Loan.returned_at.is_(None))
-            .group_by(Loan.book_id)
+            select(Rental.game_id, func.count().label("count"))
+            .where(Rental.returned_at.is_(None))
+            .group_by(Rental.game_id)
             .subquery()
         )
         return (
             await self.session.execute(
-                select(Book, func.coalesce(active.c.count, 0))
-                .outerjoin(active, Book.id == active.c.book_id)
-                .order_by(Book.title)
+                select(Game, func.coalesce(active.c.count, 0))
+                .outerjoin(active, Game.id == active.c.game_id)
+                .order_by(Game.title)
             )
         ).all()
 
-    async def loan_details(self):
+    async def rental_details(self):
         return (
             await self.session.execute(
-                select(Loan, Book.title, Reader.name)
-                .join(Book, Loan.book_id == Book.id)
-                .join(Reader, Loan.reader_id == Reader.id)
-                .order_by(Loan.id.desc())
+                select(Rental, Game.title, Game.platform, Customer.name)
+                .join(Game, Rental.game_id == Game.id)
+                .join(Customer, Rental.customer_id == Customer.id)
+                .order_by(Rental.id.desc())
             )
         ).all()

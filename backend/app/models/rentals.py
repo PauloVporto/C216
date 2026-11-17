@@ -3,6 +3,7 @@
 from datetime import date, datetime
 
 from sqlalchemy import (
+    BigInteger,
     CheckConstraint,
     Date,
     DateTime,
@@ -66,7 +67,7 @@ class Rental(Base):
     start_date: Mapped[date] = mapped_column(Date)
     due_date: Mapped[date] = mapped_column(Date)
     daily_rate_cents: Mapped[int] = mapped_column(Integer)
-    total_cents: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    total_cents: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     returned_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )

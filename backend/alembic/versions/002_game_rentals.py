@@ -46,7 +46,7 @@ def upgrade():
         sa.Column("start_date", sa.Date(), nullable=False),
         sa.Column("due_date", sa.Date(), nullable=False),
         sa.Column("daily_rate_cents", sa.Integer(), nullable=False),
-        sa.Column("total_cents", sa.Integer(), nullable=True),
+        sa.Column("total_cents", sa.BigInteger(), nullable=True),
         sa.Column("returned_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column(
             "created_at",
