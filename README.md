@@ -191,6 +191,8 @@ Branch: `projeto-final`. A branch principal existente é **`Main`**, com M maiú
 
 **Vídeo demonstrativo:** [Assistir à demonstração do LocaPlay no Microsoft Stream](https://posinatel-my.sharepoint.com/:v:/r/personal/paulo_v_gec_inatel_br/_layouts/15/stream.aspx?id=%2Fpersonal%2Fpaulo_v_gec_inatel_br%2FDocuments%2FVideoC216%2F2026-11-21%2011-12-46.mov&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&share=cQoOMOK1i76ZQZ3QP0BmbuatEgUCooj-8DQ1my3P2scr2O1FYQ).
 
+Caso o link principal não funcione, utilize o [link alternativo do vídeo no Google Drive](https://drive.google.com/file/d/1adPUP4bODHm10FM4LdxZJbCUBETjhbim/view?usp=sharing).
+
 Até **28/11/2026**, envie na atividade do Teams os links do repositório, do PR e do vídeo. Confira o acesso dos avaliadores.
 
 A implementação contou com apoio de IA. O aluno deve revisar o código, executar os comandos, compreender as regras e realizar a própria demonstração. O [guia de revisão](docs/revisao.md) indica os pontos técnicos a estudar.
